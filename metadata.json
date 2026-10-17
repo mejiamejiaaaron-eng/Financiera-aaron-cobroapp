@@ -1,0 +1,6 @@
+{
+  "name": "FINANCIERA AARON - CobrosApp",
+  "description": "Sistema completo de administración de créditos, clientes, cuotas, cobros diarios, mora y reportes financieros.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

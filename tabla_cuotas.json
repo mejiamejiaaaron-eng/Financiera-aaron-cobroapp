@@ -1,0 +1,1286 @@
+{
+  "83.31": {
+    "monto": 300,
+    "plazo_semanas": 4,
+    "interes": 33.24,
+    "tasa": "65%"
+  },
+  "58.15": {
+    "monto": 300,
+    "plazo_semanas": 6,
+    "interes": 48.9,
+    "tasa": "65%"
+  },
+  "45.56": {
+    "monto": 300,
+    "plazo_semanas": 8,
+    "interes": 64.48,
+    "tasa": "65%"
+  },
+  "38.03": {
+    "monto": 300,
+    "plazo_semanas": 10,
+    "interes": 80.3,
+    "tasa": "65%"
+  },
+  "32.81": {
+    "monto": 300,
+    "plazo_semanas": 12,
+    "interes": 93.72,
+    "tasa": "60%"
+  },
+  "26.54": {
+    "monto": 300,
+    "plazo_semanas": 16,
+    "interes": 124.64,
+    "tasa": "60%"
+  },
+  "22.79": {
+    "monto": 300,
+    "plazo_semanas": 20,
+    "interes": 155.8,
+    "tasa": "60%"
+  },
+  "20.39": {
+    "monto": 300,
+    "plazo_semanas": 24,
+    "interes": 189.36,
+    "tasa": "60%"
+  },
+  "96.82": {
+    "monto": 350,
+    "plazo_semanas": 4,
+    "interes": 37.28,
+    "tasa": "65%"
+  },
+  "67.47": {
+    "monto": 350,
+    "plazo_semanas": 6,
+    "interes": 54.82,
+    "tasa": "65%"
+  },
+  "52.78": {
+    "monto": 350,
+    "plazo_semanas": 8,
+    "interes": 72.24,
+    "tasa": "65%"
+  },
+  "43.99": {
+    "monto": 350,
+    "plazo_semanas": 10,
+    "interes": 89.9,
+    "tasa": "65%"
+  },
+  "37.91": {
+    "monto": 350,
+    "plazo_semanas": 12,
+    "interes": 104.92,
+    "tasa": "60%"
+  },
+  "30.60": {
+    "monto": 500,
+    "plazo_semanas": 24,
+    "interes": 234.4,
+    "tasa": "60%"
+  },
+  "26.20": {
+    "monto": 350,
+    "plazo_semanas": 20,
+    "interes": 174.0,
+    "tasa": "60%"
+  },
+  "23.30": {
+    "monto": 350,
+    "plazo_semanas": 24,
+    "interes": 209.2,
+    "tasa": "60%"
+  },
+  "109.76": {
+    "monto": 400,
+    "plazo_semanas": 4,
+    "interes": 39.04,
+    "tasa": "65%"
+  },
+  "76.22": {
+    "monto": 400,
+    "plazo_semanas": 6,
+    "interes": 57.32,
+    "tasa": "65%"
+  },
+  "59.44": {
+    "monto": 400,
+    "plazo_semanas": 8,
+    "interes": 75.52,
+    "tasa": "65%"
+  },
+  "49.38": {
+    "monto": 400,
+    "plazo_semanas": 10,
+    "interes": 93.8,
+    "tasa": "65%"
+  },
+  "42.44": {
+    "monto": 400,
+    "plazo_semanas": 12,
+    "interes": 109.28,
+    "tasa": "60%"
+  },
+  "34.07": {
+    "monto": 400,
+    "plazo_semanas": 16,
+    "interes": 145.12,
+    "tasa": "60%"
+  },
+  "29.06": {
+    "monto": 400,
+    "plazo_semanas": 20,
+    "interes": 181.2,
+    "tasa": "60%"
+  },
+  "25.73": {
+    "monto": 400,
+    "plazo_semanas": 24,
+    "interes": 217.52,
+    "tasa": "60%"
+  },
+  "122.70": {
+    "monto": 450,
+    "plazo_semanas": 4,
+    "interes": 40.8,
+    "tasa": "65%"
+  },
+  "84.96": {
+    "monto": 450,
+    "plazo_semanas": 6,
+    "interes": 59.76,
+    "tasa": "65%"
+  },
+  "66.10": {
+    "monto": 450,
+    "plazo_semanas": 8,
+    "interes": 78.8,
+    "tasa": "65%"
+  },
+  "54.78": {
+    "monto": 450,
+    "plazo_semanas": 10,
+    "interes": 97.8,
+    "tasa": "65%"
+  },
+  "46.97": {
+    "monto": 450,
+    "plazo_semanas": 12,
+    "interes": 113.64,
+    "tasa": "60%"
+  },
+  "37.56": {
+    "monto": 450,
+    "plazo_semanas": 16,
+    "interes": 150.96,
+    "tasa": "60%"
+  },
+  "31.92": {
+    "monto": 450,
+    "plazo_semanas": 20,
+    "interes": 188.4,
+    "tasa": "60%"
+  },
+  "28.17": {
+    "monto": 450,
+    "plazo_semanas": 24,
+    "interes": 226.08,
+    "tasa": "60%"
+  },
+  "135.66": {
+    "monto": 500,
+    "plazo_semanas": 4,
+    "interes": 42.64,
+    "tasa": "65%"
+  },
+  "93.71": {
+    "monto": 500,
+    "plazo_semanas": 6,
+    "interes": 62.26,
+    "tasa": "65%"
+  },
+  "72.74": {
+    "monto": 500,
+    "plazo_semanas": 8,
+    "interes": 81.92,
+    "tasa": "65%"
+  },
+  "60.18": {
+    "monto": 500,
+    "plazo_semanas": 10,
+    "interes": 101.8,
+    "tasa": "65%"
+  },
+  "51.50": {
+    "monto": 500,
+    "plazo_semanas": 12,
+    "interes": 118.0,
+    "tasa": "60%"
+  },
+  "41.04": {
+    "monto": 600,
+    "plazo_semanas": 20,
+    "interes": 220.8,
+    "tasa": "60%"
+  },
+  "34.78": {
+    "monto": 500,
+    "plazo_semanas": 20,
+    "interes": 195.6,
+    "tasa": "60%"
+  },
+  "162.10": {
+    "monto": 600,
+    "plazo_semanas": 4,
+    "interes": 48.4,
+    "tasa": "65%"
+  },
+  "111.77": {
+    "monto": 600,
+    "plazo_semanas": 6,
+    "interes": 70.62,
+    "tasa": "65%"
+  },
+  "86.61": {
+    "monto": 600,
+    "plazo_semanas": 8,
+    "interes": 92.88,
+    "tasa": "65%"
+  },
+  "71.52": {
+    "monto": 600,
+    "plazo_semanas": 10,
+    "interes": 115.2,
+    "tasa": "65%"
+  },
+  "61.11": {
+    "monto": 600,
+    "plazo_semanas": 12,
+    "interes": 133.32,
+    "tasa": "60%"
+  },
+  "48.56": {
+    "monto": 600,
+    "plazo_semanas": 16,
+    "interes": 176.96,
+    "tasa": "60%"
+  },
+  "36.04": {
+    "monto": 600,
+    "plazo_semanas": 24,
+    "interes": 264.96,
+    "tasa": "60%"
+  },
+  "175.04": {
+    "monto": 650,
+    "plazo_semanas": 4,
+    "interes": 50.16,
+    "tasa": "65%"
+  },
+  "120.51": {
+    "monto": 650,
+    "plazo_semanas": 6,
+    "interes": 73.06,
+    "tasa": "65%"
+  },
+  "93.26": {
+    "monto": 650,
+    "plazo_semanas": 8,
+    "interes": 96.08,
+    "tasa": "65%"
+  },
+  "76.92": {
+    "monto": 650,
+    "plazo_semanas": 10,
+    "interes": 119.2,
+    "tasa": "65%"
+  },
+  "65.63": {
+    "monto": 650,
+    "plazo_semanas": 12,
+    "interes": 137.56,
+    "tasa": "60%"
+  },
+  "52.04": {
+    "monto": 650,
+    "plazo_semanas": 16,
+    "interes": 182.64,
+    "tasa": "60%"
+  },
+  "43.90": {
+    "monto": 650,
+    "plazo_semanas": 20,
+    "interes": 228.0,
+    "tasa": "60%"
+  },
+  "38.48": {
+    "monto": 650,
+    "plazo_semanas": 24,
+    "interes": 273.52,
+    "tasa": "60%"
+  },
+  "187.98": {
+    "monto": 700,
+    "plazo_semanas": 4,
+    "interes": 51.92,
+    "tasa": "65%"
+  },
+  "129.26": {
+    "monto": 700,
+    "plazo_semanas": 6,
+    "interes": 75.56,
+    "tasa": "65%"
+  },
+  "99.92": {
+    "monto": 700,
+    "plazo_semanas": 8,
+    "interes": 99.36,
+    "tasa": "65%"
+  },
+  "82.32": {
+    "monto": 700,
+    "plazo_semanas": 10,
+    "interes": 123.2,
+    "tasa": "65%"
+  },
+  "70.16": {
+    "monto": 700,
+    "plazo_semanas": 12,
+    "interes": 141.92,
+    "tasa": "60%"
+  },
+  "55.52": {
+    "monto": 700,
+    "plazo_semanas": 16,
+    "interes": 188.32,
+    "tasa": "60%"
+  },
+  "46.76": {
+    "monto": 700,
+    "plazo_semanas": 20,
+    "interes": 235.2,
+    "tasa": "60%"
+  },
+  "40.92": {
+    "monto": 700,
+    "plazo_semanas": 24,
+    "interes": 282.08,
+    "tasa": "60%"
+  },
+  "202.07": {
+    "monto": 750,
+    "plazo_semanas": 4,
+    "interes": 58.28,
+    "tasa": "65%"
+  },
+  "139.15": {
+    "monto": 750,
+    "plazo_semanas": 6,
+    "interes": 84.9,
+    "tasa": "65%"
+  },
+  "107.70": {
+    "monto": 750,
+    "plazo_semanas": 8,
+    "interes": 111.6,
+    "tasa": "65%"
+  },
+  "88.85": {
+    "monto": 750,
+    "plazo_semanas": 10,
+    "interes": 138.5,
+    "tasa": "65%"
+  },
+  "75.81": {
+    "monto": 750,
+    "plazo_semanas": 12,
+    "interes": 159.72,
+    "tasa": "60%"
+  },
+  "60.13": {
+    "monto": 750,
+    "plazo_semanas": 16,
+    "interes": 212.08,
+    "tasa": "60%"
+  },
+  "50.74": {
+    "monto": 750,
+    "plazo_semanas": 20,
+    "interes": 264.8,
+    "tasa": "60%"
+  },
+  "44.49": {
+    "monto": 750,
+    "plazo_semanas": 24,
+    "interes": 317.76,
+    "tasa": "60%"
+  },
+  "215.01": {
+    "monto": 800,
+    "plazo_semanas": 4,
+    "interes": 60.04,
+    "tasa": "65%"
+  },
+  "147.89": {
+    "monto": 800,
+    "plazo_semanas": 6,
+    "interes": 87.34,
+    "tasa": "65%"
+  },
+  "114.35": {
+    "monto": 800,
+    "plazo_semanas": 8,
+    "interes": 114.8,
+    "tasa": "65%"
+  },
+  "94.25": {
+    "monto": 800,
+    "plazo_semanas": 10,
+    "interes": 142.5,
+    "tasa": "65%"
+  },
+  "80.35": {
+    "monto": 800,
+    "plazo_semanas": 12,
+    "interes": 164.2,
+    "tasa": "60%"
+  },
+  "63.61": {
+    "monto": 800,
+    "plazo_semanas": 16,
+    "interes": 217.76,
+    "tasa": "60%"
+  },
+  "53.59": {
+    "monto": 800,
+    "plazo_semanas": 20,
+    "interes": 271.8,
+    "tasa": "60%"
+  },
+  "46.93": {
+    "monto": 800,
+    "plazo_semanas": 24,
+    "interes": 326.32,
+    "tasa": "60%"
+  },
+  "227.95": {
+    "monto": 850,
+    "plazo_semanas": 4,
+    "interes": 61.8,
+    "tasa": "65%"
+  },
+  "156.65": {
+    "monto": 850,
+    "plazo_semanas": 6,
+    "interes": 89.9,
+    "tasa": "65%"
+  },
+  "121.01": {
+    "monto": 850,
+    "plazo_semanas": 8,
+    "interes": 118.08,
+    "tasa": "65%"
+  },
+  "99.64": {
+    "monto": 850,
+    "plazo_semanas": 10,
+    "interes": 146.4,
+    "tasa": "65%"
+  },
+  "84.88": {
+    "monto": 850,
+    "plazo_semanas": 12,
+    "interes": 168.56,
+    "tasa": "60%"
+  },
+  "67.10": {
+    "monto": 850,
+    "plazo_semanas": 16,
+    "interes": 223.6,
+    "tasa": "60%"
+  },
+  "56.45": {
+    "monto": 850,
+    "plazo_semanas": 20,
+    "interes": 279.0,
+    "tasa": "60%"
+  },
+  "49.37": {
+    "monto": 850,
+    "plazo_semanas": 24,
+    "interes": 334.88,
+    "tasa": "60%"
+  },
+  "240.89": {
+    "monto": 900,
+    "plazo_semanas": 4,
+    "interes": 63.56,
+    "tasa": "65%"
+  },
+  "165.40": {
+    "monto": 900,
+    "plazo_semanas": 6,
+    "interes": 92.4,
+    "tasa": "65%"
+  },
+  "127.65": {
+    "monto": 900,
+    "plazo_semanas": 8,
+    "interes": 121.2,
+    "tasa": "65%"
+  },
+  "105.04": {
+    "monto": 900,
+    "plazo_semanas": 10,
+    "interes": 150.4,
+    "tasa": "65%"
+  },
+  "89.40": {
+    "monto": 900,
+    "plazo_semanas": 12,
+    "interes": 172.8,
+    "tasa": "60%"
+  },
+  "70.57": {
+    "monto": 900,
+    "plazo_semanas": 16,
+    "interes": 229.12,
+    "tasa": "60%"
+  },
+  "59.30": {
+    "monto": 900,
+    "plazo_semanas": 20,
+    "interes": 286.0,
+    "tasa": "60%"
+  },
+  "51.81": {
+    "monto": 900,
+    "plazo_semanas": 24,
+    "interes": 343.44,
+    "tasa": "60%"
+  },
+  "267.34": {
+    "monto": 1000,
+    "plazo_semanas": 4,
+    "interes": 69.36,
+    "tasa": "65%"
+  },
+  "183.47": {
+    "monto": 1000,
+    "plazo_semanas": 6,
+    "interes": 100.82,
+    "tasa": "65%"
+  },
+  "141.53": {
+    "monto": 1000,
+    "plazo_semanas": 8,
+    "interes": 132.24,
+    "tasa": "65%"
+  },
+  "116.40": {
+    "monto": 1000,
+    "plazo_semanas": 10,
+    "interes": 164.0,
+    "tasa": "65%"
+  },
+  "99.02": {
+    "monto": 1000,
+    "plazo_semanas": 12,
+    "interes": 188.24,
+    "tasa": "60%"
+  },
+  "78.11": {
+    "monto": 1000,
+    "plazo_semanas": 16,
+    "interes": 249.76,
+    "tasa": "60%"
+  },
+  "65.58": {
+    "monto": 1000,
+    "plazo_semanas": 20,
+    "interes": 311.6,
+    "tasa": "60%"
+  },
+  "57.25": {
+    "monto": 1000,
+    "plazo_semanas": 24,
+    "interes": 374.0,
+    "tasa": "60%"
+  },
+  "315.83": {
+    "monto": 1200,
+    "plazo_semanas": 4,
+    "interes": 63.32,
+    "tasa": "45%"
+  },
+  "215.36": {
+    "monto": 1200,
+    "plazo_semanas": 6,
+    "interes": 92.16,
+    "tasa": "45%"
+  },
+  "165.13": {
+    "monto": 1200,
+    "plazo_semanas": 8,
+    "interes": 121.04,
+    "tasa": "45%"
+  },
+  "135.00": {
+    "monto": 1200,
+    "plazo_semanas": 10,
+    "interes": 150,
+    "tasa": "45%"
+  },
+  "114.20": {
+    "monto": 1200,
+    "plazo_semanas": 12,
+    "interes": 170.4,
+    "tasa": "40%"
+  },
+  "89.12": {
+    "monto": 1200,
+    "plazo_semanas": 16,
+    "interes": 225.92,
+    "tasa": "40%"
+  },
+  "74.08": {
+    "monto": 1200,
+    "plazo_semanas": 20,
+    "interes": 281.6,
+    "tasa": "40%"
+  },
+  "64.08": {
+    "monto": 1200,
+    "plazo_semanas": 24,
+    "interes": 337.92,
+    "tasa": "40%"
+  },
+  "341.44": {
+    "monto": 1300,
+    "plazo_semanas": 4,
+    "interes": 65.76,
+    "tasa": "45%"
+  },
+  "232.61": {
+    "monto": 1300,
+    "plazo_semanas": 6,
+    "interes": 95.66,
+    "tasa": "45%"
+  },
+  "178.20": {
+    "monto": 1300,
+    "plazo_semanas": 8,
+    "interes": 125.6,
+    "tasa": "45%"
+  },
+  "145.55": {
+    "monto": 1300,
+    "plazo_semanas": 10,
+    "interes": 155.5,
+    "tasa": "45%"
+  },
+  "123.01": {
+    "monto": 1300,
+    "plazo_semanas": 12,
+    "interes": 176.12,
+    "tasa": "40%"
+  },
+  "95.84": {
+    "monto": 1300,
+    "plazo_semanas": 16,
+    "interes": 233.44,
+    "tasa": "40%"
+  },
+  "79.56": {
+    "monto": 1300,
+    "plazo_semanas": 20,
+    "interes": 291.2,
+    "tasa": "40%"
+  },
+  "68.72": {
+    "monto": 1300,
+    "plazo_semanas": 24,
+    "interes": 349.28,
+    "tasa": "40%"
+  },
+  "367.06": {
+    "monto": 1400,
+    "plazo_semanas": 4,
+    "interes": 68.24,
+    "tasa": "45%"
+  },
+  "249.84": {
+    "monto": 1400,
+    "plazo_semanas": 6,
+    "interes": 99.04,
+    "tasa": "45%"
+  },
+  "191.24": {
+    "monto": 1400,
+    "plazo_semanas": 8,
+    "interes": 129.92,
+    "tasa": "45%"
+  },
+  "156.01": {
+    "monto": 1400,
+    "plazo_semanas": 10,
+    "interes": 160.1,
+    "tasa": "45%"
+  },
+  "131.83": {
+    "monto": 1400,
+    "plazo_semanas": 12,
+    "interes": 181.96,
+    "tasa": "40%"
+  },
+  "102.56": {
+    "monto": 1400,
+    "plazo_semanas": 16,
+    "interes": 240.96,
+    "tasa": "40%"
+  },
+  "85.02": {
+    "monto": 1400,
+    "plazo_semanas": 20,
+    "interes": 300.4,
+    "tasa": "40%"
+  },
+  "73.35": {
+    "monto": 1400,
+    "plazo_semanas": 24,
+    "interes": 360.4,
+    "tasa": "40%"
+  },
+  "392.66": {
+    "monto": 1500,
+    "plazo_semanas": 4,
+    "interes": 70.64,
+    "tasa": "45%"
+  },
+  "267.09": {
+    "monto": 1500,
+    "plazo_semanas": 6,
+    "interes": 102.54,
+    "tasa": "45%"
+  },
+  "204.30": {
+    "monto": 1500,
+    "plazo_semanas": 8,
+    "interes": 134.4,
+    "tasa": "45%"
+  },
+  "166.65": {
+    "monto": 1500,
+    "plazo_semanas": 10,
+    "interes": 166.5,
+    "tasa": "45%"
+  },
+  "140.63": {
+    "monto": 1500,
+    "plazo_semanas": 12,
+    "interes": 187.56,
+    "tasa": "40%"
+  },
+  "109.28": {
+    "monto": 1500,
+    "plazo_semanas": 16,
+    "interes": 248.48,
+    "tasa": "40%"
+  },
+  "90.50": {
+    "monto": 1500,
+    "plazo_semanas": 20,
+    "interes": 310.0,
+    "tasa": "40%"
+  },
+  "77.98": {
+    "monto": 1500,
+    "plazo_semanas": 24,
+    "interes": 371.52,
+    "tasa": "40%"
+  },
+  "418.29": {
+    "monto": 1600,
+    "plazo_semanas": 4,
+    "interes": 73.16,
+    "tasa": "45%"
+  },
+  "284.33": {
+    "monto": 1600,
+    "plazo_semanas": 6,
+    "interes": 105.98,
+    "tasa": "45%"
+  },
+  "217.36": {
+    "monto": 1600,
+    "plazo_semanas": 8,
+    "interes": 138.88,
+    "tasa": "45%"
+  },
+  "177.18": {
+    "monto": 1600,
+    "plazo_semanas": 10,
+    "interes": 171.8,
+    "tasa": "45%"
+  },
+  "149.44": {
+    "monto": 1600,
+    "plazo_semanas": 12,
+    "interes": 193.28,
+    "tasa": "40%"
+  },
+  "116.00": {
+    "monto": 1600,
+    "plazo_semanas": 16,
+    "interes": 256,
+    "tasa": "40%"
+  },
+  "95.96": {
+    "monto": 1600,
+    "plazo_semanas": 20,
+    "interes": 319.2,
+    "tasa": "40%"
+  },
+  "82.61": {
+    "monto": 1600,
+    "plazo_semanas": 24,
+    "interes": 382.64,
+    "tasa": "40%"
+  },
+  "443.90": {
+    "monto": 1700,
+    "plazo_semanas": 4,
+    "interes": 75.6,
+    "tasa": "45%"
+  },
+  "301.57": {
+    "monto": 1700,
+    "plazo_semanas": 6,
+    "interes": 109.42,
+    "tasa": "45%"
+  },
+  "230.41": {
+    "monto": 1700,
+    "plazo_semanas": 8,
+    "interes": 143.28,
+    "tasa": "45%"
+  },
+  "187.73": {
+    "monto": 1700,
+    "plazo_semanas": 10,
+    "interes": 177.3,
+    "tasa": "45%"
+  },
+  "158.26": {
+    "monto": 1700,
+    "plazo_semanas": 12,
+    "interes": 199.12,
+    "tasa": "40%"
+  },
+  "122.72": {
+    "monto": 1700,
+    "plazo_semanas": 16,
+    "interes": 263.52,
+    "tasa": "40%"
+  },
+  "101.43": {
+    "monto": 1700,
+    "plazo_semanas": 20,
+    "interes": 328.6,
+    "tasa": "40%"
+  },
+  "87.24": {
+    "monto": 1700,
+    "plazo_semanas": 24,
+    "interes": 393.76,
+    "tasa": "40%"
+  },
+  "469.50": {
+    "monto": 1800,
+    "plazo_semanas": 4,
+    "interes": 78.0,
+    "tasa": "45%"
+  },
+  "318.80": {
+    "monto": 1800,
+    "plazo_semanas": 6,
+    "interes": 112.8,
+    "tasa": "45%"
+  },
+  "243.46": {
+    "monto": 1800,
+    "plazo_semanas": 8,
+    "interes": 147.68,
+    "tasa": "45%"
+  },
+  "198.27": {
+    "monto": 1800,
+    "plazo_semanas": 10,
+    "interes": 182.7,
+    "tasa": "45%"
+  },
+  "167.06": {
+    "monto": 1800,
+    "plazo_semanas": 12,
+    "interes": 204.72,
+    "tasa": "40%"
+  },
+  "129.44": {
+    "monto": 1800,
+    "plazo_semanas": 16,
+    "interes": 271.04,
+    "tasa": "40%"
+  },
+  "106.90": {
+    "monto": 1800,
+    "plazo_semanas": 20,
+    "interes": 338.0,
+    "tasa": "40%"
+  },
+  "91.88": {
+    "monto": 1800,
+    "plazo_semanas": 24,
+    "interes": 405.12,
+    "tasa": "40%"
+  },
+  "520.72": {
+    "monto": 2000,
+    "plazo_semanas": 4,
+    "interes": 82.88,
+    "tasa": "45%"
+  },
+  "353.28": {
+    "monto": 2000,
+    "plazo_semanas": 6,
+    "interes": 119.68,
+    "tasa": "45%"
+  },
+  "269.58": {
+    "monto": 2000,
+    "plazo_semanas": 8,
+    "interes": 156.64,
+    "tasa": "45%"
+  },
+  "219.36": {
+    "monto": 2000,
+    "plazo_semanas": 10,
+    "interes": 193.6,
+    "tasa": "45%"
+  },
+  "184.69": {
+    "monto": 2000,
+    "plazo_semanas": 12,
+    "interes": 216.28,
+    "tasa": "40%"
+  },
+  "142.88": {
+    "monto": 2000,
+    "plazo_semanas": 16,
+    "interes": 286.08,
+    "tasa": "40%"
+  },
+  "117.83": {
+    "monto": 2000,
+    "plazo_semanas": 20,
+    "interes": 356.6,
+    "tasa": "40%"
+  },
+  "101.14": {
+    "monto": 2000,
+    "plazo_semanas": 24,
+    "interes": 427.36,
+    "tasa": "40%"
+  },
+  "594.73": {
+    "monto": 2300,
+    "plazo_semanas": 4,
+    "interes": 78.92,
+    "tasa": "36%"
+  },
+  "402.35": {
+    "monto": 2300,
+    "plazo_semanas": 6,
+    "interes": 114.1,
+    "tasa": "36%"
+  },
+  "306.17": {
+    "monto": 2300,
+    "plazo_semanas": 8,
+    "interes": 149.36,
+    "tasa": "36%"
+  },
+  "248.46": {
+    "monto": 2300,
+    "plazo_semanas": 10,
+    "interes": 184.6,
+    "tasa": "36%"
+  },
+  "210.00": {
+    "monto": 2300,
+    "plazo_semanas": 12,
+    "interes": 220,
+    "tasa": "36%"
+  },
+  "161.95": {
+    "monto": 2300,
+    "plazo_semanas": 16,
+    "interes": 291.2,
+    "tasa": "36%"
+  },
+  "133.13": {
+    "monto": 2300,
+    "plazo_semanas": 20,
+    "interes": 362.6,
+    "tasa": "36%"
+  },
+  "113.94": {
+    "monto": 2300,
+    "plazo_semanas": 24,
+    "interes": 434.56,
+    "tasa": "36%"
+  },
+  "645.72": {
+    "monto": 2500,
+    "plazo_semanas": 4,
+    "interes": 82.88,
+    "tasa": "36%"
+  },
+  "436.60": {
+    "monto": 2500,
+    "plazo_semanas": 6,
+    "interes": 119.6,
+    "tasa": "36%"
+  },
+  "332.05": {
+    "monto": 2500,
+    "plazo_semanas": 8,
+    "interes": 156.4,
+    "tasa": "36%"
+  },
+  "269.34": {
+    "monto": 2500,
+    "plazo_semanas": 10,
+    "interes": 193.4,
+    "tasa": "36%"
+  },
+  "227.53": {
+    "monto": 2500,
+    "plazo_semanas": 12,
+    "interes": 230.36,
+    "tasa": "36%"
+  },
+  "175.30": {
+    "monto": 2500,
+    "plazo_semanas": 16,
+    "interes": 304.8,
+    "tasa": "36%"
+  },
+  "143.97": {
+    "monto": 2500,
+    "plazo_semanas": 20,
+    "interes": 379.4,
+    "tasa": "36%"
+  },
+  "123.10": {
+    "monto": 2500,
+    "plazo_semanas": 24,
+    "interes": 454.4,
+    "tasa": "36%"
+  },
+  "722.19": {
+    "monto": 2800,
+    "plazo_semanas": 4,
+    "interes": 88.76,
+    "tasa": "36%"
+  },
+  "487.98": {
+    "monto": 2800,
+    "plazo_semanas": 6,
+    "interes": 127.88,
+    "tasa": "36%"
+  },
+  "370.88": {
+    "monto": 2800,
+    "plazo_semanas": 8,
+    "interes": 167.04,
+    "tasa": "36%"
+  },
+  "300.63": {
+    "monto": 2800,
+    "plazo_semanas": 10,
+    "interes": 206.3,
+    "tasa": "36%"
+  },
+  "253.81": {
+    "monto": 2800,
+    "plazo_semanas": 12,
+    "interes": 245.72,
+    "tasa": "36%"
+  },
+  "195.31": {
+    "monto": 2800,
+    "plazo_semanas": 16,
+    "interes": 324.96,
+    "tasa": "36%"
+  },
+  "160.23": {
+    "monto": 2800,
+    "plazo_semanas": 20,
+    "interes": 404.6,
+    "tasa": "36%"
+  },
+  "136.87": {
+    "monto": 2800,
+    "plazo_semanas": 24,
+    "interes": 484.88,
+    "tasa": "36%"
+  },
+  "773.16": {
+    "monto": 3000,
+    "plazo_semanas": 4,
+    "interes": 92.64,
+    "tasa": "36%"
+  },
+  "522.23": {
+    "monto": 3000,
+    "plazo_semanas": 6,
+    "interes": 133.38,
+    "tasa": "36%"
+  },
+  "396.76": {
+    "monto": 3000,
+    "plazo_semanas": 8,
+    "interes": 174.08,
+    "tasa": "36%"
+  },
+  "321.50": {
+    "monto": 3000,
+    "plazo_semanas": 10,
+    "interes": 215.0,
+    "tasa": "36%"
+  },
+  "271.33": {
+    "monto": 3000,
+    "plazo_semanas": 12,
+    "interes": 255.96,
+    "tasa": "36%"
+  },
+  "208.65": {
+    "monto": 3000,
+    "plazo_semanas": 16,
+    "interes": 338.4,
+    "tasa": "36%"
+  },
+  "171.07": {
+    "monto": 3000,
+    "plazo_semanas": 20,
+    "interes": 421.4,
+    "tasa": "36%"
+  },
+  "146.03": {
+    "monto": 3000,
+    "plazo_semanas": 24,
+    "interes": 504.72,
+    "tasa": "36%"
+  },
+  "900.60": {
+    "monto": 3500,
+    "plazo_semanas": 4,
+    "interes": 102.4,
+    "tasa": "36%"
+  },
+  "607.84": {
+    "monto": 3500,
+    "plazo_semanas": 6,
+    "interes": 147.04,
+    "tasa": "36%"
+  },
+  "461.47": {
+    "monto": 3500,
+    "plazo_semanas": 8,
+    "interes": 191.76,
+    "tasa": "36%"
+  },
+  "373.68": {
+    "monto": 3500,
+    "plazo_semanas": 10,
+    "interes": 236.8,
+    "tasa": "36%"
+  },
+  "315.15": {
+    "monto": 3500,
+    "plazo_semanas": 12,
+    "interes": 281.8,
+    "tasa": "36%"
+  },
+  "242.02": {
+    "monto": 3500,
+    "plazo_semanas": 16,
+    "interes": 372.32,
+    "tasa": "36%"
+  },
+  "198.16": {
+    "monto": 3500,
+    "plazo_semanas": 20,
+    "interes": 463.2,
+    "tasa": "36%"
+  },
+  "168.96": {
+    "monto": 3500,
+    "plazo_semanas": 24,
+    "interes": 555.04,
+    "tasa": "36%"
+  },
+  "1028.06": {
+    "monto": 4000,
+    "plazo_semanas": 4,
+    "interes": 112.24,
+    "tasa": "36%"
+  },
+  "693.46": {
+    "monto": 4000,
+    "plazo_semanas": 6,
+    "interes": 160.76,
+    "tasa": "36%"
+  },
+  "526.19": {
+    "monto": 4000,
+    "plazo_semanas": 8,
+    "interes": 209.52,
+    "tasa": "36%"
+  },
+  "425.84": {
+    "monto": 4000,
+    "plazo_semanas": 10,
+    "interes": 258.4,
+    "tasa": "36%"
+  },
+  "358.96": {
+    "monto": 4000,
+    "plazo_semanas": 12,
+    "interes": 307.52,
+    "tasa": "36%"
+  },
+  "275.39": {
+    "monto": 4000,
+    "plazo_semanas": 16,
+    "interes": 406.24,
+    "tasa": "36%"
+  },
+  "225.27": {
+    "monto": 4000,
+    "plazo_semanas": 20,
+    "interes": 505.4,
+    "tasa": "36%"
+  },
+  "191.88": {
+    "monto": 4000,
+    "plazo_semanas": 24,
+    "interes": 605.12,
+    "tasa": "36%"
+  }
+}

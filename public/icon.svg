@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0284c7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  
+  <!-- Background with rounded corners -->
+  <rect width="512" height="512" rx="108" fill="url(#grad1)" />
+  
+  <!-- Subtle glowing rings -->
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#60a5fa" stroke-width="3" stroke-opacity="0.25" stroke-dasharray="12 8" />
+  
+  <!-- Modern Shield / Vault Emblem -->
+  <g filter="url(#shadow)">
+    <!-- Shield Outline -->
+    <path d="M 256 80 L 380 135 C 380 270 256 380 256 380 C 256 380 132 270 132 135 Z" fill="#0f172a" stroke="#38bdf8" stroke-width="8" stroke-linejoin="round" />
+    
+    <!-- Stylized 'A' + Financial Growth Arrow -->
+    <!-- Letter A left leg -->
+    <path d="M 210 310 L 256 160 L 275 220" fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Letter A right leg & ascending arrow -->
+    <path d="M 256 160 L 302 310" fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="round" />
+    <!-- Crossbar -->
+    <path d="M 226 260 L 286 260" stroke="url(#goldGrad)" stroke-width="16" stroke-linecap="round" />
+    
+    <!-- Currency / Dollar Coin Badge -->
+    <circle cx="256" cy="385" r="48" fill="url(#goldGrad)" stroke="#ffffff" stroke-width="5" />
+    <text x="256" y="403" font-family="system-ui, -apple-system, sans-serif" font-size="46" font-weight="900" fill="#78350f" text-anchor="middle">$</text>
+  </g>
+  
+  <!-- Subtitle Text -->
+  <text x="256" y="475" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="800" letter-spacing="4" fill="#e0f2fe" text-anchor="middle">AARON</text>
+</svg>
