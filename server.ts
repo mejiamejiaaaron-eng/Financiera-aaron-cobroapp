@@ -15,15 +15,17 @@ const PORT = Number(process.env.PORT) || 3000;
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
-// Server-side Gemini client with recommended telemetry User-Agent
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
+// Helper to get server-side Gemini client with recommended telemetry User-Agent
+function getGeminiClient() {
+  return new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY || '',
+    httpOptions: {
+      headers: {
+        'User-Agent': 'aistudio-build',
+      },
     },
-  },
-});
+  });
+}
 
 // API endpoint for OCR Document Scanner
 app.post('/api/ocr-scan', async (req, res) => {
@@ -40,6 +42,8 @@ app.post('/api/ocr-scan', async (req, res) => {
         fallback: true,
       });
     }
+
+    const ai = getGeminiClient();
 
     const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
 

@@ -105,7 +105,8 @@ export interface Credit {
   totalAmountToPay: number; // Capital + Interés
   modality: PaymentModality;
   totalInstallments: number; // Número de cuotas
-  installmentAmount: number; // Importe de cada cuota
+  installmentAmount: number; // Importe de cada cuota estándar (SSOT)
+  lastInstallmentAmount?: number; // Importe de la última cuota con ajuste estricto de centavos (SSOT)
   startDate: string; // YYYY-MM-DD
   firstDueDate: string; // YYYY-MM-DD
   finalDueDate: string; // YYYY-MM-DD
@@ -126,12 +127,13 @@ export interface Installment {
   clientId: string;
   installmentNumber: number;
   dueDate: string; // YYYY-MM-DD
-  scheduledAmount: number;
+  scheduledAmount: number; // Monto programado para esta cuota (SSOT)
   paidAmount: number;
   balance: number;
   status: InstallmentStatus;
   daysOverdue: number;
   lastPaymentDate?: string;
+  isLastInstallment?: boolean; // Indica si es la última cuota que absorbe el redondeo
 }
 
 export type PaymentMethod = 'Efectivo' | 'Transferencia' | 'Chivo Wallet / Bitcoin' | 'Tigo Money' | 'Otro';

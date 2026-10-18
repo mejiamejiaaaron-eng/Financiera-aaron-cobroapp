@@ -105,9 +105,13 @@ interface AppContextType {
     creditData: {
       principal: number;
       interestRate: number;
-      interestType: 'fijo' | 'simple' | 'sobre_saldo';
+      interestType?: 'fijo' | 'simple' | 'sobre_saldo';
       modality: 'diario' | 'semanal' | 'quincenal' | 'mensual';
       totalInstallments: number;
+      installmentAmount?: number;
+      customInstallmentAmount?: number;
+      totalAmountToPay?: number;
+      totalInterest?: number;
       startDate: string;
       firstDueDate: string;
       notes: string;
@@ -435,9 +439,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       creditData: {
         principal: number;
         interestRate: number;
-        interestType: 'fijo' | 'simple' | 'sobre_saldo';
+        interestType?: 'fijo' | 'simple' | 'sobre_saldo';
         modality: 'diario' | 'semanal' | 'quincenal' | 'mensual';
         totalInstallments: number;
+        installmentAmount?: number;
+        customInstallmentAmount?: number;
+        totalAmountToPay?: number;
+        totalInterest?: number;
         startDate: string;
         firstDueDate: string;
         notes: string;

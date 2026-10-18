@@ -1,6 +1,6 @@
 import { AppSettings, AuditLog, Client, Credit, Installment, Payment, ReversionRequest, User, UserPermissions } from '../types';
 import { getElSalvadorDate, getElSalvadorTimeString } from '../utils/dateUtils';
-import { calculateLoanSchedule } from '../utils/financialCalculations';
+import { LoanCalculator, calculateLoanSchedule } from '../utils/financialCalculations';
 
 export const ADMIN_PERMISSIONS: UserPermissions = {
   canViewClients: true,
@@ -204,6 +204,7 @@ export function generateInitialData(): {
     modality: 'diario',
     totalInstallments: 24,
     installmentAmount: 15,
+    lastInstallmentAmount: 15,
     startDate: today,
     firstDueDate: today,
     finalDueDate: schedule1.finalDueDate,
@@ -242,6 +243,7 @@ export function generateInitialData(): {
     modality: 'diario',
     totalInstallments: 25,
     installmentAmount: 24,
+    lastInstallmentAmount: 24,
     startDate: today,
     firstDueDate: today,
     finalDueDate: schedule2.finalDueDate,
@@ -280,6 +282,7 @@ export function generateInitialData(): {
     modality: 'diario',
     totalInstallments: 20,
     installmentAmount: 24,
+    lastInstallmentAmount: 24,
     startDate: '2026-03-20',
     firstDueDate: '2026-03-25',
     finalDueDate: schedule3.finalDueDate,
@@ -318,6 +321,7 @@ export function generateInitialData(): {
     modality: 'semanal',
     totalInstallments: 8,
     installmentAmount: 28.75,
+    lastInstallmentAmount: 28.75,
     startDate: today,
     firstDueDate: today,
     finalDueDate: schedule4.finalDueDate,
@@ -347,6 +351,7 @@ export function generateInitialData(): {
     modality: 'quincenal',
     totalInstallments: 6,
     installmentAmount: 120,
+    lastInstallmentAmount: 120,
     startDate: '2026-01-15',
     firstDueDate: '2026-01-30',
     finalDueDate: '2026-04-15',

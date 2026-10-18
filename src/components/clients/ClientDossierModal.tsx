@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
-import { formatCurrency } from '../../utils/financialCalculations';
+import { LoanCalculator, formatCurrency } from '../../utils/financialCalculations';
 import { formatDateDisplay } from '../../utils/dateUtils';
 import { Credit } from '../../types';
 
@@ -207,12 +207,49 @@ export const ClientDossierModal: React.FC<Props> = ({
                 </div>
               </div>
 
-              {/* Installments Table for this credit */}
+              {/* Stored Credit Plan Summary (SSOT - No recalculations) */}
+              <div className="bg-slate-900 border border-slate-700/80 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold">
+                    <CreditCard className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-slate-400 text-[11px] block">Monto de Cuota (Guardado en BD):</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-base font-extrabold text-emerald-400">
+                        {formatCurrency(LoanCalculator.getInstallmentAmount(currentCredit), settings.currencySymbol)}
+                      </span>
+                      {currentCredit.lastInstallmentAmount && currentCredit.lastInstallmentAmount !== currentCredit.installmentAmount && (
+                        <span className="text-[10px] text-amber-300 font-semibold bg-amber-950/60 border border-amber-800/60 px-2 py-0.5 rounded-full">
+                          Última cuota #{currentCredit.totalInstallments}: {formatCurrency(currentCredit.lastInstallmentAmount, settings.currencySymbol)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 text-slate-300 text-[11px]">
+                  <div>
+                    <span className="text-slate-400 block">Plan Guardado:</span>
+                    <strong className="text-white capitalize">{LoanCalculator.formatSummary(currentCredit, settings.currencySymbol)}</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block">Tasa de Interés:</span>
+                    <strong className="text-white">{currentCredit.interestRate}% ({formatCurrency(currentCredit.totalInterest, settings.currencySymbol)})</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block">Vencimiento Final:</span>
+                    <strong className="text-blue-300">{formatDateDisplay(currentCredit.finalDueDate)}</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Installments Table for this credit (Direct read from DB, zero formulas) */}
               <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-700">
                   <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-blue-400" />
-                    <span>Cuotas Programadas ({creditInstallments.length})</span>
+                    <span>Cronograma de Cuotas Guardado ({creditInstallments.length})</span>
                   </h4>
                   <span className="text-xs text-slate-400">
                     Modalidad: <strong className="text-white capitalize">{currentCredit.modality}</strong>
@@ -236,12 +273,17 @@ export const ClientDossierModal: React.FC<Props> = ({
                         <tr key={inst.id} className="hover:bg-slate-700/20">
                           <td className="py-2 px-2 font-mono text-slate-300">
                             Cuota #{inst.installmentNumber}
+                            {inst.isLastInstallment && currentCredit.lastInstallmentAmount && currentCredit.lastInstallmentAmount !== currentCredit.installmentAmount && (
+                              <span className="ml-1 text-[9px] text-amber-300 font-sans font-bold bg-amber-950/80 border border-amber-800/80 px-1 py-0.2 rounded">
+                                [Redondeo]
+                              </span>
+                            )}
                           </td>
                           <td className="py-2 px-2 text-slate-200">
                             {formatDateDisplay(inst.dueDate)}
                           </td>
                           <td className="py-2 px-2 font-semibold text-white">
-                            {formatCurrency(inst.scheduledAmount, settings.currencySymbol)}
+                            {formatCurrency(LoanCalculator.getInstallmentScheduledAmount(inst), settings.currencySymbol)}
                           </td>
                           <td className="py-2 px-2 text-emerald-400 font-semibold">
                             {formatCurrency(inst.paidAmount, settings.currencySymbol)}

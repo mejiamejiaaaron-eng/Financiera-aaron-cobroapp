@@ -20,7 +20,7 @@ import {
   getPopularCreditPlan,
 } from '../../data/popularCreditsData';
 import { PaymentModality } from '../../types';
-import { formatCurrency } from '../../utils/financialCalculations';
+import { LoanCalculator, formatCurrency } from '../../utils/financialCalculations';
 
 export interface AppliedCreditSettings {
   principal: number;
@@ -310,14 +310,22 @@ export const FastCreditSimulator: React.FC<Props> = ({
     const p = Number(diarioMonto) || 0;
     const n = customPlazo !== undefined ? customPlazo : Number(diarioPlazo) || 1;
     const r = Number(diarioCalc.tasaEfectiva) || 0;
-    const c = (p * (1 + r / 100)) / n;
+
+    // Use centralized LoanCalculator for exact installment amount
+    const calc = LoanCalculator.calculate({
+      principal: p,
+      interestRate: r,
+      totalInstallments: n,
+      modality: 'diario',
+      customInstallmentAmount: diarioLastEdited === 'cuota' && Number(diarioCuota) > 0 ? Number(diarioCuota) : undefined,
+    });
 
     onApply({
       principal: p,
       modality: 'diario',
       totalInstallments: n,
-      interestRate: r,
-      cuotaSugerida: Math.round(c * 100) / 100,
+      interestRate: calc.interestRate,
+      cuotaSugerida: calc.installmentAmount,
     });
     setAppliedFeedback('diario');
     setTimeout(() => setAppliedFeedback(null), 2500);
@@ -327,14 +335,22 @@ export const FastCreditSimulator: React.FC<Props> = ({
     const p = Number(mensualMonto) || 0;
     const n = customPlazo !== undefined ? customPlazo : Number(mensualPlazo) || 1;
     const r = Number(mensualCalc.tasaEfectiva) || 0;
-    const c = (p * (1 + r / 100)) / n;
+
+    // Use centralized LoanCalculator for exact installment amount
+    const calc = LoanCalculator.calculate({
+      principal: p,
+      interestRate: r,
+      totalInstallments: n,
+      modality: 'mensual',
+      customInstallmentAmount: mensualLastEdited === 'cuota' && Number(mensualCuota) > 0 ? Number(mensualCuota) : undefined,
+    });
 
     onApply({
       principal: p,
       modality: 'mensual',
       totalInstallments: n,
-      interestRate: r,
-      cuotaSugerida: Math.round(c * 100) / 100,
+      interestRate: calc.interestRate,
+      cuotaSugerida: calc.installmentAmount,
     });
     setAppliedFeedback('mensual');
     setTimeout(() => setAppliedFeedback(null), 2500);

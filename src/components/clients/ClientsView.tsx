@@ -304,14 +304,18 @@ export const ClientsView: React.FC = () => {
 
                     <td className="py-3.5 px-4">
                       {item.credits.length > 0 ? (
-                        <div className="space-y-0.5">
+                        <div className="space-y-1">
                           {item.credits.map(c => (
-                            <span
-                              key={c.id}
-                              className="inline-block font-mono text-[11px] font-semibold text-blue-300 bg-blue-950/60 border border-blue-900 px-1.5 py-0.2 rounded mr-1"
-                            >
-                              {c.creditNumber}
-                            </span>
+                            <div key={c.id} className="flex items-center gap-1.5 flex-wrap">
+                              <span className="inline-block font-mono text-[11px] font-semibold text-blue-300 bg-blue-950/60 border border-blue-900 px-1.5 py-0.2 rounded">
+                                {c.creditNumber}
+                              </span>
+                              {c.installmentAmount > 0 && (
+                                <span className="text-[11px] text-emerald-400 font-bold">
+                                  {formatCurrency(c.installmentAmount, settings.currencySymbol)}
+                                </span>
+                              )}
+                            </div>
                           ))}
                         </div>
                       ) : (

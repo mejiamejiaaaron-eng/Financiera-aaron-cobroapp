@@ -11,7 +11,7 @@ import {
   AssignmentLog,
 } from '../types';
 import { getElSalvadorDate, getElSalvadorTimeString } from '../utils/dateUtils';
-import { calculateLoanSchedule, refreshInstallmentStatus } from '../utils/financialCalculations';
+import { LoanCalculator, calculateLoanSchedule, refreshInstallmentStatus } from '../utils/financialCalculations';
 import {
   ADMIN_PERMISSIONS,
   COLLECTOR_PERMISSIONS,
@@ -131,11 +131,24 @@ export function loadDatabase(): AppDatabase {
     const today = getElSalvadorDate();
     const updatedInstallments = installments.map(inst => refreshInstallmentStatus(inst, today));
 
+    // Ensure all credits have strict installmentAmount and consistent totals (SSOT)
+    const verifiedCredits = credits.map(cred => {
+      let installmentAmount = cred.installmentAmount;
+      const creditInsts = installments.filter(i => i.creditId === cred.id);
+      if ((!installmentAmount || installmentAmount <= 0) && creditInsts.length > 0) {
+        installmentAmount = creditInsts[0].scheduledAmount;
+      }
+      return {
+        ...cred,
+        installmentAmount: installmentAmount || (cred.totalInstallments > 0 ? Math.round((cred.totalAmountToPay / cred.totalInstallments) * 100) / 100 : 0),
+      };
+    });
+
     return {
       users: users.length ? users : INITIAL_USERS,
       settings,
       clients: activeAndPurgedClients,
-      credits,
+      credits: verifiedCredits,
       installments: updatedInstallments,
       payments,
       reversionRequests,
@@ -611,9 +624,12 @@ export function addClientAndCredit(
     creditData: {
       principal: number;
       interestRate: number;
-      interestType: 'fijo' | 'simple' | 'sobre_saldo';
+      interestType?: 'fijo' | 'simple' | 'sobre_saldo';
       modality: 'diario' | 'semanal' | 'quincenal' | 'mensual';
       totalInstallments: number;
+      installmentAmount?: number;
+      customInstallmentAmount?: number;
+      totalAmountToPay?: number;
       startDate: string;
       firstDueDate: string;
       notes: string;
@@ -653,14 +669,17 @@ export function addClientAndCredit(
     isArchived: false,
   };
 
-  // Calculate Credit Schedule
-  const schedule = calculateLoanSchedule({
+  // SSOT: Calculate Credit Schedule via centralized LoanCalculator
+  // Preserves exact custom installment (e.g. $30.60) or strict flat rate with penny absorption
+  const schedule = LoanCalculator.calculate({
     principal: creditData.principal,
     interestRate: creditData.interestRate,
-    interestType: creditData.interestType,
+    interestType: creditData.interestType || 'fijo',
     modality: creditData.modality,
     totalInstallments: creditData.totalInstallments,
     firstDueDate: creditData.firstDueDate,
+    customInstallmentAmount: creditData.customInstallmentAmount ?? creditData.installmentAmount,
+    totalAmountToPay: creditData.totalAmountToPay,
   });
 
   const nextCreditNum = db.credits.length + 1001;
@@ -676,12 +695,13 @@ export function addClientAndCredit(
     clientAddress: client.address,
     principal: schedule.principal,
     interestRate: schedule.interestRate,
-    interestType: creditData.interestType,
+    interestType: creditData.interestType || 'fijo',
     totalInterest: schedule.totalInterest,
     totalAmountToPay: schedule.totalAmountToPay,
     modality: creditData.modality,
     totalInstallments: creditData.totalInstallments,
     installmentAmount: schedule.installmentAmount,
+    lastInstallmentAmount: schedule.lastInstallmentAmount,
     startDate: creditData.startDate,
     firstDueDate: creditData.firstDueDate,
     finalDueDate: schedule.finalDueDate,
@@ -694,7 +714,7 @@ export function addClientAndCredit(
     createdAt: new Date().toISOString(),
   };
 
-  // Generate Installment entities
+  // Generate Installment entities with strict penny absorption in the last installment
   const newInstallments: Installment[] = schedule.installments.map(inst => ({
     id: `inst-${creditId}-${inst.installmentNumber}`,
     creditId: credit.id,
@@ -706,6 +726,7 @@ export function addClientAndCredit(
     balance: inst.scheduledAmount,
     status: 'pending',
     daysOverdue: 0,
+    isLastInstallment: inst.isLastInstallment,
   }));
 
   const audit: AuditLog = {

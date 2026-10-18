@@ -18,7 +18,7 @@ import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { InterestType, PaymentModality } from '../../types';
 import { getElSalvadorDate, formatDateDisplay } from '../../utils/dateUtils';
-import { calculateLoanSchedule, formatCurrency } from '../../utils/financialCalculations';
+import { LoanCalculator, calculateLoanSchedule, formatCurrency } from '../../utils/financialCalculations';
 import { DocumentScannerModal, ExtractedClientCreditData } from '../common/DocumentScannerModal';
 import { PopularCreditsModal } from './PopularCreditsModal';
 import { FastCreditSimulator, AppliedCreditSettings } from './FastCreditSimulator';
@@ -117,16 +117,16 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
     setTimeout(() => setSuccessMessage(''), 6000);
   };
 
-  // Live schedule calculations
+  // Centralized calculation engine (LoanCalculator)
   const schedule = useMemo(() => {
-    return calculateLoanSchedule({
+    return LoanCalculator.calculate({
       principal: Number(principal) || 0,
       interestRate: Number(interestRate) || 0,
       interestType,
       modality,
       totalInstallments: Number(totalInstallments) || 1,
       firstDueDate,
-      customInstallmentAmount: modality === 'semanal' ? customInstallmentAmount : undefined,
+      customInstallmentAmount: customInstallmentAmount && customInstallmentAmount > 0 ? customInstallmentAmount : undefined,
     });
   }, [principal, interestRate, interestType, modality, totalInstallments, firstDueDate, customInstallmentAmount]);
 
@@ -155,6 +155,7 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
     try {
       setIsSubmitting(true);
+      // SSOT: Pass the exact calculated plan so database stores what was reviewed on screen
       const res = await handleAddClientAndCredit({
         clientData: {
           fullName,
@@ -166,11 +167,15 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
           notes: clientNotes,
         },
         creditData: {
-          principal,
-          interestRate,
+          principal: schedule.principal,
+          interestRate: schedule.interestRate,
           interestType,
           modality,
           totalInstallments,
+          installmentAmount: schedule.installmentAmount,
+          customInstallmentAmount: customInstallmentAmount && customInstallmentAmount > 0 ? customInstallmentAmount : schedule.installmentAmount,
+          totalAmountToPay: schedule.totalAmountToPay,
+          totalInterest: schedule.totalInterest,
           startDate,
           firstDueDate,
           notes: creditNotes,
@@ -449,8 +454,13 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
                       </div>
                       <p className="text-[11px] text-slate-300 mt-0.5">
                         <strong className="text-emerald-300 font-bold">{totalInstallments} cuotas</strong> de{' '}
-                        <strong className="text-white text-xs">{formatCurrency(schedule.installmentAmount, settings.currencySymbol)}</strong>{' '}
-                        • Total a pagar: <strong className="text-white">{formatCurrency(schedule.totalAmountToPay, settings.currencySymbol)}</strong> (Interés: {formatCurrency(schedule.totalInterest, settings.currencySymbol)} al {interestRate}%)
+                        <strong className="text-white text-xs">{formatCurrency(schedule.installmentAmount, settings.currencySymbol)}</strong>
+                        {schedule.hasPennyAdjustment && (
+                          <span className="text-amber-300 text-[10px] ml-1 font-semibold">
+                            (última cuota #{totalInstallments}: {formatCurrency(schedule.lastInstallmentAmount, settings.currencySymbol)} por redondeo exacto)
+                          </span>
+                        )}{' '}
+                        • Total a pagar: <strong className="text-white">{formatCurrency(schedule.totalAmountToPay, settings.currencySymbol)}</strong> (Interés: {formatCurrency(schedule.totalInterest, settings.currencySymbol)} al {schedule.interestRate}%)
                       </p>
                     </div>
                   </div>
@@ -465,7 +475,7 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
           ) : (
             /* Tab: Preview Installment Schedule */
             <div className="space-y-4">
-              <div className="flex items-center justify-between text-xs bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs bg-slate-800/80 p-3 rounded-xl border border-slate-700">
                 <div>
                   <span className="text-slate-400">Cliente: </span>
                   <strong className="text-white">{fullName || 'Sin nombre'}</strong>
@@ -481,6 +491,11 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   <strong className="text-blue-300">
                     {schedule.installments.length} x {formatCurrency(schedule.installmentAmount, settings.currencySymbol)}
                   </strong>
+                  {schedule.hasPennyAdjustment && (
+                    <span className="text-amber-300 text-[11px] ml-1.5 font-bold">
+                      [Última: {formatCurrency(schedule.lastInstallmentAmount, settings.currencySymbol)}]
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -491,11 +506,12 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
                       <th className="py-2 px-3 font-semibold"># Cuota</th>
                       <th className="py-2 px-3 font-semibold">Fecha Vencimiento</th>
                       <th className="py-2 px-3 font-semibold text-right">Importe Cuota</th>
+                      <th className="py-2 px-3 font-semibold text-center">Nota</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800">
                     {schedule.installments.map(inst => (
-                      <tr key={inst.installmentNumber} className="hover:bg-slate-800/40">
+                      <tr key={inst.installmentNumber} className={`hover:bg-slate-800/40 ${inst.isLastInstallment && schedule.hasPennyAdjustment ? 'bg-amber-950/20' : ''}`}>
                         <td className="py-2 px-3 font-mono text-slate-300">
                           Cuota #{inst.installmentNumber}
                         </td>
@@ -504,6 +520,15 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         </td>
                         <td className="py-2 px-3 font-bold text-emerald-400 text-right">
                           {formatCurrency(inst.scheduledAmount, settings.currencySymbol)}
+                        </td>
+                        <td className="py-2 px-3 text-center">
+                          {inst.isLastInstallment && schedule.hasPennyAdjustment ? (
+                            <span className="text-[10px] font-bold text-amber-400 bg-amber-950/60 border border-amber-800/60 px-1.5 py-0.5 rounded">
+                              Absorbe redondeo (+{formatCurrency(schedule.pennyDifference, settings.currencySymbol)})
+                            </span>
+                          ) : (
+                            <span className="text-slate-500 text-[11px]">Regular</span>
+                          )}
                         </td>
                       </tr>
                     ))}
