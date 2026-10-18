@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Simulador y Registrador de Créditos - FINANCIERA AARON</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+              950: '#0b1329',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Estilos personalizados para inputs y scrollbars */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans antialiased selection:bg-blue-600 selection:text-white pb-28">
+
+  <!-- ========================================== -->
+  <!-- BARRA SUPERIOR DE MARCA Y MODO OSCURO     -->
+  <!-- ========================================== -->
+  <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur-md sticky top-0 z-30 px-4 py-3">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-900/40 text-white font-black text-xs">
+          FA
+        </div>
+        <div>
+          <h1 class="text-xs font-black tracking-wider text-slate-300 uppercase">FINANCIERA AARON</h1>
+          <p class="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Sistema Financiero de Créditos y Cobros
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] font-mono px-2.5 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
+          Modo Oscuro
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- CONTENEDOR PRINCIPAL CON BORDES REDONDEADOS-->
+  <!-- ========================================== -->
+  <main class="max-w-4xl w-full mx-auto p-3 sm:p-6 my-auto">
+    <div class="bg-slate-900/95 border border-slate-800 rounded-3xl shadow-2xl shadow-black/80 overflow-hidden flex flex-col transition-all">
+      
+      <!-- 1. ENCABEZADO SOLICITADO -->
+      <div class="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 px-5 sm:px-7 py-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-2xl bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400 shadow-inner">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white tracking-tight">
+              Añadir Cliente / Registrar Crédito
+            </h2>
+            <p class="text-xs text-blue-300/80">
+              Simulador y registrador con tabla oficial reglamentaria
+            </p>
+          </div>
+        </div>
+
+        <div class="hidden sm:flex flex-col items-end text-right">
+          <span class="text-[10px] text-slate-400 uppercase font-semibold">Modalidad</span>
+          <span id="headerModalidadBadge" class="text-xs font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800/80 px-2.5 py-0.5 rounded-full">
+            Semanal
+          </span>
+        </div>
+      </div>
+
+      <!-- 2. PESTAÑAS SUPERIORES: Semanal (Verde por defecto), Diario, Mensual -->
+      <div class="grid grid-cols-3 border-b border-slate-800 bg-slate-950/60 p-1.5 gap-1.5 text-xs font-bold">
+        <!-- Semanal (Verde por defecto) -->
+        <button
+          id="tabBtnSemanal"
+          onclick="switchTab('semanal')"
+          class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl transition-all cursor-pointer bg-emerald-600 text-white shadow-lg shadow-emerald-900/30 font-extrabold"
+        >
+          <svg class="w-4 h-4 text-emerald-100" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 4h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span>Semanal</span>
+        </button>
+
+        <!-- Diario -->
+        <button
+          id="tabBtnDiario"
+          onclick="switchTab('diario')"
+          class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl transition-all cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 font-semibold"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+          <span>Diario</span>
+        </button>
+
+        <!-- Mensual -->
+        <button
+          id="tabBtnMensual"
+          onclick="switchTab('mensual')"
+          class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl transition-all cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 font-semibold"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span>Mensual</span>
+        </button>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- CONTENIDO DE LAS PESTAÑAS                 -->
+      <!-- ========================================== -->
+      <div class="p-4 sm:p-7 space-y-6">
+
+        <!-- DATOS DEL CLIENTE (Nombre, DUI, Teléfono) -->
+        <div class="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs uppercase font-extrabold text-blue-400 tracking-wider flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              Datos del Cliente
+            </span>
+            <span class="text-[11px] text-slate-400">Pagaré y apertura de cuenta</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Nombre Completo *</label>
+              <input id="inputClienteNombre" type="text" placeholder="Ej. Juan Carlos López" value="Juan Carlos López Pérez" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">DUI / Documento</label>
+              <input id="inputClienteDui" type="text" placeholder="00000000-0" value="04891234-5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono" />
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1">Teléfono Móvil *</label>
+              <input id="inputClienteTelefono" type="text" placeholder="7000-0000" value="7123-4567" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- PESTAÑA 1: SEMANAL (TABLA EXCLUSIVA - REGLA MATEMÁTICA)   -->
+        <!-- ========================================================= -->
+        <section id="contentSemanal" class="space-y-5">
+          <!-- SWITCH PARA ALTERNAR MODO AUTOMÁTICO VS MODO MANUAL -->
+          <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+              <div class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                <span>Modo de Operación Semanal:</span>
+                <span id="currentModeLabel" class="text-emerald-400 font-mono uppercase bg-emerald-950/80 border border-emerald-800/80 px-2 py-0.5 rounded text-[10px]">
+                  Modo Manual (Dropdowns)
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5">
+                La cuota semanal se extrae EXCLUSIVAMENTE de la tabla oficial (Total = Cuota × Semanas).
+              </p>
+            </div>
+
+            <!-- BOTONES DEL SWITCH -->
+            <div class="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-700/80 text-xs font-semibold gap-1 w-full sm:w-auto">
+              <button
+                type="button"
+                id="toggleManualBtn"
+                onclick="setSemanalMode('manual')"
+                class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg transition-all text-white bg-emerald-600 font-bold shadow"
+              >
+                🛠️ Modo Manual
+              </button>
+              <button
+                type="button"
+                id="toggleAutoBtn"
+                onclick="setSemanalMode('auto')"
+                class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white"
+              >
+                ⚡ Modo Automático
+              </button>
+            </div>
+          </div>
+
+          <!-- MODO MANUAL (Dropdown Monto + Dropdown Plazo + Botón Verde) -->
+          <div id="semanalManualBox" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Dropdown "Monto Oficial ($)" -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">
+                  Monto Oficial ($) <span class="text-emerald-400">*</span>
+                </label>
+                <select
+                  id="selectSemanalMonto"
+                  onchange="onManualSelectionChange()"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-bold text-sm focus:outline-none focus:border-emerald-500"
+                >
+                  <!-- Cargado dinámicamente desde la tabla -->
+                </select>
+                <span class="text-[10px] text-slate-500 mt-1 block">Montos oficiales de la tabla ($300 a $2000+)</span>
+              </div>
+
+              <!-- Dropdown "Plazo (Semanas)" -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">
+                  Plazo (Semanas) <span class="text-emerald-400">*</span>
+                </label>
+                <select
+                  id="selectSemanalPlazo"
+                  onchange="onManualSelectionChange()"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-bold text-sm focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="4">4 semanas (1 mes)</option>
+                  <option value="6">6 semanas (1.5 meses)</option>
+                  <option value="8">8 semanas (2 meses)</option>
+                  <option value="10">10 semanas (2.5 meses)</option>
+                  <option value="12" selected>12 semanas (3 meses)</option>
+                  <option value="16">16 semanas (4 meses)</option>
+                  <option value="20">20 semanas (5 meses)</option>
+                  <option value="24">24 semanas (6 meses)</option>
+                </select>
+                <span class="text-[10px] text-slate-500 mt-1 block">Semanas aprobadas: 4, 6, 8, 10, 12, 16, 20, 24</span>
+              </div>
+            </div>
+
+            <!-- Botón verde "Aplicar al Crédito Semanal" -->
+            <div>
+              <button
+                type="button"
+                id="btnAplicarSemanalManual"
+                onclick="aplicarAlCreditoSemanalManual()"
+                class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 cursor-pointer transition active:scale-95 text-xs sm:text-sm"
+              >
+                <svg class="w-5 h-5 text-emerald-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Aplicar al Crédito Semanal</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- MODO AUTOMÁTICO (Búsqueda Inversa) -->
+          <div id="semanalAutoBox" class="hidden space-y-4">
+            <div class="p-4 bg-emerald-950/30 border border-emerald-800/60 rounded-2xl space-y-3">
+              <label for="inputCuotaBuscar" class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span>Ingresa el Valor Exacto de la Cuota Semanal ($)</span>
+              </label>
+
+              <div class="flex flex-col sm:flex-row gap-2.5">
+                <div class="relative flex-1">
+                  <span class="absolute left-3.5 top-2.5 text-slate-400 font-bold text-sm">$</span>
+                  <input
+                    id="inputCuotaBuscar"
+                    type="number"
+                    step="any"
+                    placeholder="Ej. 32.81, 82.32, 116.40, 38.03..."
+                    value="32.81"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-2.5 text-white font-mono font-bold text-base focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    onkeydown="if(event.key === 'Enter'){ buscarCreditoPorCuota(); }"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onclick="buscarCreditoPorCuota()"
+                  class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 cursor-pointer transition active:scale-95 text-xs"
+                >
+                  <span>Buscar Crédito</span>
+                </button>
+              </div>
+
+              <!-- Atajos de cuotas populares de la tabla -->
+              <div class="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
+                <span class="text-slate-400">Ejemplos de la tabla:</span>
+                <button type="button" onclick="quickFillCuota(32.81)" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-emerald-300 hover:bg-emerald-950 font-mono">$32.81 ($300 / 12s)</button>
+                <button type="button" onclick="quickFillCuota(82.32)" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-emerald-300 hover:bg-emerald-950 font-mono">$82.32 ($700 / 10s)</button>
+                <button type="button" onclick="quickFillCuota(38.03)" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-emerald-300 hover:bg-emerald-950 font-mono">$38.03</button>
+                <button type="button" onclick="quickFillCuota(116.40)" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-emerald-300 hover:bg-emerald-950 font-mono">$116.40</button>
+              </div>
+            </div>
+
+            <!-- Error de Búsqueda Inversa -->
+            <div id="semanalAutoError" class="hidden p-3.5 bg-rose-950/60 border border-rose-800 rounded-xl text-rose-300 text-xs flex items-center gap-2.5">
+              <svg class="w-5 h-5 shrink-0 text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span id="semanalAutoErrorText">No se encontró ningún crédito que coincida con esa cuota exacta.</span>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ========================================================= -->
+        <!-- PESTAÑA 2: DIARIO (100% MANUAL / CALCULADORA)            -->
+        <!-- ========================================================= -->
+        <section id="contentDiario" class="hidden space-y-5">
+          <div class="p-3 bg-amber-950/20 border border-amber-900/40 rounded-xl text-xs text-amber-200 flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>Fórmula: <strong>Cuota = (Monto + (Monto * (Interés / 100))) / Número de Cuotas</strong></span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Monto del Crédito ($) *</label>
+              <div class="relative">
+                <span class="absolute left-3 top-2.5 text-slate-400 font-bold">$</span>
+                <input id="diarioMonto" type="number" step="any" value="300" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-amber-500" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Plazo (Días o Semanas)</label>
+              <input id="diarioPlazoDias" type="text" value="24 días" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-semibold text-sm focus:outline-none focus:border-amber-500" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Número de Cuotas *</label>
+              <input id="diarioNumeroCuotas" type="number" min="1" step="1" value="24" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-amber-500" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Porcentaje de Interés (%) *</label>
+              <div class="relative">
+                <input id="diarioInteres" type="number" step="any" value="20" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-amber-500" />
+                <span class="absolute right-3 top-2.5 text-slate-400 font-bold">%</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" onclick="calcularCuotaDiaria()" class="w-full py-2.5 px-4 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-amber-900/40 flex items-center justify-center gap-2 cursor-pointer transition active:scale-95 text-xs sm:text-sm">
+            <span>Calcular Cuota Diaria</span>
+          </button>
+        </section>
+
+
+        <!-- ========================================================= -->
+        <!-- PESTAÑA 3: MENSUAL (100% MANUAL / CALCULADORA)           -->
+        <!-- ========================================================= -->
+        <section id="contentMensual" class="hidden space-y-5">
+          <div class="p-3 bg-blue-950/20 border border-blue-900/40 rounded-xl text-xs text-blue-200 flex items-center gap-2">
+            <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>Fórmula: <strong>Cuota = (Monto + (Monto * (Interés / 100))) / Número de Cuotas</strong></span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Monto del Crédito ($) *</label>
+              <div class="relative">
+                <span class="absolute left-3 top-2.5 text-slate-400 font-bold">$</span>
+                <input id="mensualMonto" type="number" step="any" value="1000" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-blue-500" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Plazo (Meses)</label>
+              <input id="mensualPlazoMeses" type="number" min="1" step="1" value="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-blue-500" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Número de Cuotas *</label>
+              <input id="mensualNumeroCuotas" type="number" min="1" step="1" value="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-blue-500" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Porcentaje de Interés (%) *</label>
+              <div class="relative">
+                <input id="mensualInteres" type="number" step="any" value="15" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-blue-500" />
+                <span class="absolute right-3 top-2.5 text-slate-400 font-bold">%</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" onclick="calcularCuotaMensual()" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-900/40 flex items-center justify-center gap-2 cursor-pointer transition active:scale-95 text-xs sm:text-sm">
+            <span>Calcular Cuota Mensual</span>
+          </button>
+        </section>
+
+
+        <!-- ========================================================= -->
+        <!-- PANEL DE RESUMEN (CRÍTICO - REQUERIDO POR EL USUARIO)     -->
+        <!-- ========================================================= -->
+        <div class="pt-2 border-t border-slate-800">
+          <div class="p-4 sm:p-5 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-slate-700/80 rounded-2xl space-y-3.5 shadow-xl">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <h3 class="text-xs font-black uppercase tracking-wider text-slate-200">
+                  Panel de Resumen Financiero
+                </h3>
+              </div>
+              <span id="badgeResumenModalidad" class="text-[11px] font-bold text-emerald-300 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800/80 uppercase">
+                Semanal
+              </span>
+            </div>
+
+            <!-- Datos requeridos: Monto, Plazo, Tasa Oficial, Interés Total, Cuota -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+              <!-- 1. Monto -->
+              <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                <span class="text-[10px] text-slate-400 block uppercase font-semibold">Monto</span>
+                <span id="resumenMonto" class="text-base sm:text-lg font-black text-white">$300.00</span>
+              </div>
+
+              <!-- 2. Plazo -->
+              <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                <span class="text-[10px] text-slate-400 block uppercase font-semibold">Plazo</span>
+                <span id="resumenPlazo" class="text-base sm:text-lg font-black text-white">12 semanas</span>
+              </div>
+
+              <!-- 3. Tasa Oficial (Solo texto informativo, ej: 60%) -->
+              <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                <span class="text-[10px] text-slate-400 block uppercase font-semibold">Tasa Oficial</span>
+                <span id="resumenTasaOficial" class="text-base sm:text-lg font-black text-blue-400">60%</span>
+                <span class="text-[9px] text-slate-500 block">Informativa</span>
+              </div>
+
+              <!-- 4. Interés Total (Calculado: Total - Monto) -->
+              <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                <span class="text-[10px] text-slate-400 block uppercase font-semibold">Interés Total</span>
+                <span id="resumenInteresTotal" class="text-base sm:text-lg font-black text-amber-400">$93.72</span>
+              </div>
+
+              <!-- 5. Cuota (Semanal/Diaria/Mensual) -->
+              <div class="col-span-2 sm:col-span-1 bg-emerald-950/80 border border-emerald-700/80 p-3 rounded-xl shadow-inner">
+                <span id="resumenCuotaLabel" class="text-[10px] text-emerald-300 block uppercase font-extrabold">Cuota Semanal</span>
+                <span id="resumenCuotaValor" class="text-lg sm:text-xl font-black text-emerald-400">$32.81</span>
+              </div>
+            </div>
+
+            <!-- Desglose total a pagar comprobado -->
+            <div class="bg-slate-900/90 px-3.5 py-2.5 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+              <span class="text-slate-300">
+                Total a pagar: <strong id="resumenTotalCalculado" class="text-white font-black text-sm">$393.72</strong> 
+                <span id="resumenFormulaTexto" class="text-slate-400 text-[11px] ml-1">(12 cuotas × $32.81)</span>
+              </span>
+              <span class="text-[11px] text-emerald-300/90 font-medium">
+                ✓ Cuota y montos verificados con tabla oficial
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================================= -->
+  <!-- PARTE INFERIOR (FOOTER FIJO CON LOS 3 BOTONES REQUERIDOS)  -->
+  <!-- 1. "Cancelar" (Gris)                                      -->
+  <!-- 2. "Revisar Cuotas" (Azul oscuro)                         -->
+  <!-- 3. "Confirmar y Guardar Crédito" (Azul brillante)         -->
+  <!-- ========================================================= -->
+  <footer class="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 p-3 sm:p-4 shadow-2xl">
+    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="hidden sm:flex items-center gap-2 text-xs text-slate-300">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span>Plan Seleccionado: <strong id="footerActiveSummary" class="text-white">$300.00 en 12 semanas (12 cuotas de $32.81 = $393.72)</strong></span>
+      </div>
+
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <!-- 1. Cancelar (Gris) -->
+        <button
+          type="button"
+          onclick="handleCancelar()"
+          class="flex-1 sm:flex-initial px-4 py-2.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 font-bold rounded-xl text-xs sm:text-sm border border-slate-700 transition cursor-pointer"
+        >
+          Cancelar
+        </button>
+
+        <!-- 2. Revisar Cuotas (Azul oscuro) -->
+        <button
+          type="button"
+          onclick="handleRevisarCuotas()"
+          class="flex-1 sm:flex-initial px-4 py-2.5 bg-blue-950 hover:bg-blue-900 active:bg-blue-950 text-blue-200 border border-blue-800 font-bold rounded-xl text-xs sm:text-sm transition cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <span>Revisar Cuotas</span>
+        </button>
+
+        <!-- 3. Confirmar y Guardar Crédito (Azul brillante) -->
+        <button
+          type="button"
+          onclick="handleConfirmarGuardar()"
+          class="flex-1 sm:flex-initial px-5 py-2.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-extrabold rounded-xl text-xs sm:text-sm transition shadow-lg shadow-blue-600/40 cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>Confirmar y Guardar Crédito</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================= -->
+  <!-- MODAL: REVISAR CUOTAS (CALENDARIO DE AMORTIZACIÓN)        -->
+  <!-- ========================================================= -->
+  <div id="modalRevisarCuotas" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="bg-gradient-to-r from-blue-900 to-indigo-900 px-5 py-4 border-b border-blue-800 flex items-center justify-between text-white">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <h3 class="font-bold text-sm sm:text-base">Calendario Proyectado de Cuotas</h3>
+        </div>
+        <button onclick="closeModalRevisarCuotas()" class="text-slate-300 hover:text-white p-1 rounded-lg">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-3 text-xs">
+        <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
+          <div>
+            <span class="text-slate-400 block text-[10px]">Cliente</span>
+            <span id="modalClienteLabel" class="font-bold text-white">Juan Carlos López</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px]">Modalidad</span>
+            <span id="modalModalidadLabel" class="font-bold text-emerald-400">Semanal</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px]">Total a Cobrar</span>
+            <span id="modalTotalLabel" class="font-bold text-amber-300">$393.72</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left">
+            <thead class="bg-slate-950 text-slate-400 border-b border-slate-800">
+              <tr>
+                <th class="py-2 px-3"># Cuota</th>
+                <th class="py-2 px-3">Fecha Vencimiento</th>
+                <th class="py-2 px-3 text-right">Importe Cuota</th>
+              </tr>
+            </thead>
+            <tbody id="modalCuotasTableBody" class="divide-y divide-slate-800/80">
+              <!-- Inyectado dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="p-3 bg-slate-950 border-t border-slate-800 flex justify-end">
+        <button onclick="closeModalRevisarCuotas()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL: RECIBO DE CONFIRMACIÓN                             -->
+  <!-- ========================================================= -->
+  <div id="modalGuardadoExito" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-emerald-600/60 w-full max-w-md rounded-3xl shadow-2xl p-6 text-center space-y-4">
+      <div class="w-14 h-14 rounded-full bg-emerald-500/20 border-2 border-emerald-500 text-emerald-400 mx-auto flex items-center justify-center text-xl font-bold">
+        ✓
+      </div>
+      <div>
+        <h3 class="text-lg font-black text-white">¡Crédito Confirmado y Guardado!</h3>
+        <p class="text-xs text-slate-300 mt-1">El pagaré oficial y calendario de cuotas han sido registrados.</p>
+      </div>
+
+      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-left text-xs space-y-2">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Cliente:</span>
+          <strong id="savedClientName" class="text-white"></strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Monto Capital:</span>
+          <strong id="savedMonto" class="text-white"></strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Modalidad:</span>
+          <strong id="savedPlazo" class="text-emerald-400"></strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Cuota:</span>
+          <strong id="savedCuota" class="text-white"></strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Interés Total:</span>
+          <strong id="savedInteres" class="text-amber-400"></strong>
+        </div>
+        <div class="flex justify-between border-t border-slate-800 pt-2">
+          <span class="text-slate-300 font-bold">Total a Pagar:</span>
+          <span id="savedTotal" class="text-amber-300 font-black text-sm"></span>
+        </div>
+      </div>
+
+      <button onclick="closeModalGuardado()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition">
+        Aceptar y Volver al Inicio
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT: BASE DE DATOS Y LÓGICA ESTRICTA DE MATEMÁTICAS                -->
+  <!-- ========================================================================= -->
+  <script>
+    // -------------------------------------------------------------------------
+    // BASE DE DATOS (Array con formato estricto: p4, p6, p8, p10, p12, p16, p20, p24)
+    // -------------------------------------------------------------------------
+    const TABLA_CREDITOS = [
+      { monto: 300, p4: 83.31, p6: 58.15, p8: 45.56, p10: 38.03, p12: 32.81, p16: 26.54, p20: 22.79, p24: 20.39 },
+      { monto: 350, p4: 96.82, p6: 67.47, p8: 52.78, p10: 43.99, p12: 37.91, p16: 30.60, p20: 26.20, p24: 23.30 },
+      { monto: 400, p4: 109.76, p6: 76.22, p8: 59.44, p10: 49.38, p12: 42.44, p16: 34.07, p20: 29.06, p24: 25.73 },
+      { monto: 450, p4: 122.70, p6: 84.96, p8: 66.10, p10: 54.78, p12: 46.97, p16: 37.56, p20: 31.92, p24: 28.17 },
+      { monto: 500, p4: 135.66, p6: 93.71, p8: 72.74, p10: 60.18, p12: 51.50, p16: 41.04, p20: 34.78, p24: 30.60 },
+      { monto: 600, p4: 162.10, p6: 111.77, p8: 86.61, p10: 71.52, p12: 61.11, p16: 48.56, p20: 41.04, p24: 36.04 },
+      { monto: 700, p4: 187.98, p6: 129.26, p8: 99.92, p10: 82.32, p12: 70.16, p16: 55.52, p20: 46.76, p24: 40.92 },
+      { monto: 750, p4: 202.07, p6: 139.15, p8: 107.70, p10: 88.85, p12: 75.81, p16: 60.13, p20: 50.74, p24: 44.49 },
+      { monto: 800, p4: 215.01, p6: 147.89, p8: 114.35, p10: 94.25, p12: 80.35, p16: 63.61, p20: 53.59, p24: 46.93 },
+      { monto: 850, p4: 227.95, p6: 156.65, p8: 121.01, p10: 99.64, p12: 84.88, p16: 67.10, p20: 56.45, p24: 49.37 },
+      { monto: 900, p4: 240.89, p6: 165.40, p8: 127.65, p10: 105.04, p12: 89.40, p16: 70.57, p20: 59.30, p24: 51.81 },
+      { monto: 1000, p4: 267.34, p6: 183.47, p8: 141.53, p10: 116.40, p12: 99.02, p16: 78.11, p20: 65.58, p24: 57.25 },
+      { monto: 1200, p4: 315.83, p6: 215.36, p8: 165.13, p10: 135.00, p12: 114.20, p16: 89.12, p20: 74.08, p24: 64.08 },
+      { monto: 1500, p4: 392.66, p6: 267.09, p8: 204.30, p10: 166.50, p12: 140.63, p16: 109.28, p20: 90.50, p24: 77.98 },
+      { monto: 2000, p4: 520.72, p6: 353.28, p8: 269.58, p10: 219.36, p12: 184.69, p16: 142.88, p20: 117.83, p24: 101.14 }
+    ];
+
+    const PLAZOS_SEMANAS = [4, 6, 8, 10, 12, 16, 20, 24];
+
+    // ESTADO DE LA APLICACIÓN
+    let currentTab = 'semanal';    // 'semanal' | 'diario' | 'mensual'
+    let semanalMode = 'manual';     // 'manual' | 'auto'
+
+    // Estado del crédito activo inicial: $300 a 12 semanas (Ejemplo obligatorio)
+    let activeCredit = {
+      modalidad: 'semanal',
+      monto: 300.00,
+      plazoTexto: '12 semanas',
+      numCuotas: 12,
+      cuota: 32.81,                // Extraído EXCLUSIVAMENTE de la tabla
+      tasaOficialTexto: '60%',     // Texto informativo reglamentario
+      interesTotal: 93.72,         // Total a Pagar - Monto: 393.72 - 300 = 93.72
+      totalPagar: 393.72           // Cuota (32.81) * 12 = 393.72
+    };
+
+    // -------------------------------------------------------------------------
+    // INICIALIZACIÓN
+    // -------------------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarDropdownMontos();
+      // Inicializar exactamente en $300 a 12 semanas
+      document.getElementById('selectSemanalMonto').value = '300';
+      document.getElementById('selectSemanalPlazo').value = '12';
+      onManualSelectionChange();
+    });
+
+    function cargarDropdownMontos() {
+      const select = document.getElementById('selectSemanalMonto');
+      select.innerHTML = '';
+      TABLA_CREDITOS.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.monto;
+        opt.textContent = `$${item.monto.toFixed(2)}`;
+        select.appendChild(opt);
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // CAMBIO DE PESTAÑAS (Semanal [Verde] / Diario / Mensual)
+    // -------------------------------------------------------------------------
+    function switchTab(tab) {
+      currentTab = tab;
+
+      const btnSemanal = document.getElementById('tabBtnSemanal');
+      const btnDiario = document.getElementById('tabBtnDiario');
+      const btnMensual = document.getElementById('tabBtnMensual');
+
+      const secSemanal = document.getElementById('contentSemanal');
+      const secDiario = document.getElementById('contentDiario');
+      const secMensual = document.getElementById('contentMensual');
+
+      [btnSemanal, btnDiario, btnMensual].forEach(btn => {
+        btn.className = 'flex items-center justify-center gap-2 py-3 px-3 rounded-xl transition-all cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 font-semibold';
+      });
+
+      secSemanal.classList.add('hidden');
+      secDiario.classList.add('hidden');
+      secMensual.classList.add('hidden');
+
+      const badge = document.getElementById('headerModalidadBadge');
+
+      if (tab === 'semanal') {
+        btnSemanal.className = 'flex items-center justify-center gap-2 py-3 px-3 rounded-xl transition-all cursor-pointer bg-emerald-600 text-white shadow-lg shadow-emerald-900/30 font-extrabold';
+        secSemanal.classList.remove('hidden');
+        badge.textContent = 'Semanal';
+        badge.className = 'text-xs font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800/80 px-2.5 py-0.5 rounded-full';
+        onManualSelectionChange();
+      } else if (tab === 'diario') {
+        btnDiario.className = 'flex items-center justify-center gap-2 py-3 px-3 rounded-xl transition-all cursor-pointer bg-amber-600 text-white shadow-lg shadow-amber-900/30 font-extrabold';
+        secDiario.classList.remove('hidden');
+        badge.textContent = 'Diario';
+        badge.className = 'text-xs font-bold text-amber-400 bg-amber-950/80 border border-amber-800/80 px-2.5 py-0.5 rounded-full';
+        calcularCuotaDiaria();
+      } else if (tab === 'mensual') {
+        btnMensual.className = 'flex items-center justify-center gap-2 py-3 px-3 rounded-xl transition-all cursor-pointer bg-blue-600 text-white shadow-lg shadow-blue-900/30 font-extrabold';
+        secMensual.classList.remove('hidden');
+        badge.textContent = 'Mensual';
+        badge.className = 'text-xs font-bold text-blue-400 bg-blue-950/80 border border-blue-800/80 px-2.5 py-0.5 rounded-full';
+        calcularCuotaMensual();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // PESTAÑA 1: SWITCH MODO MANUAL VS AUTOMÁTICO
+    // -------------------------------------------------------------------------
+    function setSemanalMode(mode) {
+      semanalMode = mode;
+      const autoBox = document.getElementById('semanalAutoBox');
+      const manualBox = document.getElementById('semanalManualBox');
+      const autoBtn = document.getElementById('toggleAutoBtn');
+      const manualBtn = document.getElementById('toggleManualBtn');
+      const label = document.getElementById('currentModeLabel');
+
+      if (mode === 'manual') {
+        manualBox.classList.remove('hidden');
+        autoBox.classList.add('hidden');
+        manualBtn.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg transition-all text-white bg-emerald-600 font-bold shadow';
+        autoBtn.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white';
+        label.textContent = 'Modo Manual (Dropdowns)';
+        onManualSelectionChange();
+      } else {
+        manualBox.classList.add('hidden');
+        autoBox.classList.remove('hidden');
+        autoBtn.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg transition-all text-white bg-emerald-600 font-bold shadow';
+        manualBtn.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white';
+        label.textContent = 'Modo Automático (Búsqueda Inversa)';
+        buscarCreditoPorCuota();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // REGLA MATEMÁTICA ESTRICTA - MODO MANUAL SEMANAL
+    // Cuota = extraída de la tabla.
+    // Total a Pagar = Cuota * Semanas.
+    // Interés Total = Total a Pagar - Monto Base.
+    // -------------------------------------------------------------------------
+    function onManualSelectionChange() {
+      const monto = parseFloat(document.getElementById('selectSemanalMonto').value) || 300;
+      const plazoSemanas = parseInt(document.getElementById('selectSemanalPlazo').value) || 12;
+
+      const fila = TABLA_CREDITOS.find(r => r.monto === monto);
+      if (!fila) return;
+
+      const key = `p${plazoSemanas}`;
+      // Cuota extraída EXCLUSIVAMENTE de la tabla
+      const cuotaTabla = fila[key];
+
+      // FÓRMULA ESTRICTA:
+      const totalPagar = Math.round(cuotaTabla * plazoSemanas * 100) / 100;
+      const interesTotal = Math.round((totalPagar - monto) * 100) / 100;
+
+      // Tasa oficial reglamentaria (Solo texto informativo)
+      let tasaTexto = '60%';
+      if (monto <= 1000) {
+        tasaTexto = plazoSemanas <= 10 ? '65%' : '60%';
+      } else if (monto <= 2000) {
+        tasaTexto = plazoSemanas <= 10 ? '45%' : '40%';
+      } else {
+        tasaTexto = '36%';
+      }
+
+      activeCredit = {
+        modalidad: 'semanal',
+        monto: monto,
+        plazoTexto: `${plazoSemanas} semanas`,
+        numCuotas: plazoSemanas,
+        cuota: cuotaTabla,
+        tasaOficialTexto: tasaTexto,
+        interesTotal: interesTotal,
+        totalPagar: totalPagar
+      };
+
+      actualizarPanelResumen();
+    }
+
+    function aplicarAlCreditoSemanalManual() {
+      onManualSelectionChange();
+      const btn = document.getElementById('btnAplicarSemanalManual');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span>✓ ¡Crédito Semanal Aplicado con Éxito!</span>';
+      btn.classList.add('bg-emerald-500');
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.classList.remove('bg-emerald-500');
+      }, 1800);
+    }
+
+    // -------------------------------------------------------------------------
+    // MODO AUTOMÁTICO - BÚSQUEDA INVERSA
+    // -------------------------------------------------------------------------
+    function buscarCreditoPorCuota() {
+      const input = document.getElementById('inputCuotaBuscar');
+      const errorBox = document.getElementById('semanalAutoError');
+      const errorText = document.getElementById('semanalAutoErrorText');
+
+      const cuotaIngresada = parseFloat(input.value);
+
+      if (isNaN(cuotaIngresada) || cuotaIngresada <= 0) {
+        errorBox.classList.remove('hidden');
+        errorText.textContent = 'Por favor ingrese un número de cuota válido mayor a 0.';
+        return;
+      }
+
+      let encontrado = null;
+
+      for (const fila of TABLA_CREDITOS) {
+        for (const semanas of PLAZOS_SEMANAS) {
+          const key = `p${semanas}`;
+          const cuotaTabla = fila[key];
+
+          if (cuotaTabla !== undefined && Math.abs(cuotaTabla - cuotaIngresada) < 0.02) {
+            encontrado = {
+              monto: fila.monto,
+              plazoSemanas: semanas,
+              cuotaExacta: cuotaTabla
+            };
+            break;
+          }
+        }
+        if (encontrado) break;
+      }
+
+      if (encontrado) {
+        errorBox.classList.add('hidden');
+
+        // REGLA MATEMÁTICA ESTRICTA:
+        const totalPagar = Math.round(encontrado.cuotaExacta * encontrado.plazoSemanas * 100) / 100;
+        const interesTotal = Math.round((totalPagar - encontrado.monto) * 100) / 100;
+
+        let tasaTexto = '60%';
+        if (encontrado.monto <= 1000) {
+          tasaTexto = encontrado.plazoSemanas <= 10 ? '65%' : '60%';
+        } else if (encontrado.monto <= 2000) {
+          tasaTexto = encontrado.plazoSemanas <= 10 ? '45%' : '40%';
+        } else {
+          tasaTexto = '36%';
+        }
+
+        // Sincronizar selectores manuales
+        document.getElementById('selectSemanalMonto').value = String(encontrado.monto);
+        document.getElementById('selectSemanalPlazo').value = String(encontrado.plazoSemanas);
+
+        activeCredit = {
+          modalidad: 'semanal',
+          monto: encontrado.monto,
+          plazoTexto: `${encontrado.plazoSemanas} semanas`,
+          numCuotas: encontrado.plazoSemanas,
+          cuota: encontrado.cuotaExacta,
+          tasaOficialTexto: tasaTexto,
+          interesTotal: interesTotal,
+          totalPagar: totalPagar
+        };
+
+        actualizarPanelResumen();
+      } else {
+        errorBox.classList.remove('hidden');
+        errorText.textContent = `No se encontró ningún crédito oficial con la cuota de $${cuotaIngresada.toFixed(2)}. Verifique el valor en la tabla.`;
+      }
+    }
+
+    function quickFillCuota(valor) {
+      document.getElementById('inputCuotaBuscar').value = valor.toFixed(2);
+      buscarCreditoPorCuota();
+    }
+
+    // -------------------------------------------------------------------------
+    // PESTAÑA 2: DIARIO (CALCULADORA MANUAL)
+    // Fórmula: Cuota = (Monto + (Monto * (Interés/100))) / Número de Cuotas
+    // -------------------------------------------------------------------------
+    function calcularCuotaDiaria() {
+      const monto = parseFloat(document.getElementById('diarioMonto').value) || 0;
+      const plazoTexto = document.getElementById('diarioPlazoDias').value || '24 días';
+      const numCuotas = parseInt(document.getElementById('diarioNumeroCuotas').value) || 1;
+      const interesPorc = parseFloat(document.getElementById('diarioInteres').value) || 0;
+
+      // Fórmula exacta solicitada:
+      const totalPagar = monto + (monto * (interesPorc / 100));
+      const interesTotal = totalPagar - monto;
+      const cuotaDiaria = numCuotas > 0 ? (totalPagar / numCuotas) : 0;
+
+      activeCredit = {
+        modalidad: 'diario',
+        monto: monto,
+        plazoTexto: plazoTexto,
+        numCuotas: numCuotas,
+        cuota: Math.round(cuotaDiaria * 100) / 100,
+        tasaOficialTexto: `${interesPorc}%`,
+        interesTotal: Math.round(interesTotal * 100) / 100,
+        totalPagar: Math.round(totalPagar * 100) / 100
+      };
+
+      actualizarPanelResumen();
+    }
+
+    // -------------------------------------------------------------------------
+    // PESTAÑA 3: MENSUAL (CALCULADORA MANUAL)
+    // Fórmula: Cuota = (Monto + (Monto * (Interés/100))) / Número de Cuotas
+    // -------------------------------------------------------------------------
+    function calcularCuotaMensual() {
+      const monto = parseFloat(document.getElementById('mensualMonto').value) || 0;
+      const plazoMeses = parseInt(document.getElementById('mensualPlazoMeses').value) || 1;
+      const numCuotas = parseInt(document.getElementById('mensualNumeroCuotas').value) || 1;
+      const interesPorc = parseFloat(document.getElementById('mensualInteres').value) || 0;
+
+      const totalPagar = monto + (monto * (interesPorc / 100));
+      const interesTotal = totalPagar - monto;
+      const cuotaMensual = numCuotas > 0 ? (totalPagar / numCuotas) : 0;
+
+      activeCredit = {
+        modalidad: 'mensual',
+        monto: monto,
+        plazoTexto: `${plazoMeses} meses`,
+        numCuotas: numCuotas,
+        cuota: Math.round(cuotaMensual * 100) / 100,
+        tasaOficialTexto: `${interesPorc}%`,
+        interesTotal: Math.round(interesTotal * 100) / 100,
+        totalPagar: Math.round(totalPagar * 100) / 100
+      };
+
+      actualizarPanelResumen();
+    }
+
+    // -------------------------------------------------------------------------
+    // ACTUALIZACIÓN DEL PANEL DE RESUMEN Y FOOTER
+    // -------------------------------------------------------------------------
+    function actualizarPanelResumen() {
+      // 1. Monto
+      document.getElementById('resumenMonto').textContent = `$${activeCredit.monto.toFixed(2)}`;
+
+      // 2. Plazo
+      document.getElementById('resumenPlazo').textContent = activeCredit.plazoTexto;
+
+      // 3. Tasa Oficial (Solo texto informativo)
+      document.getElementById('resumenTasaOficial').textContent = activeCredit.tasaOficialTexto;
+
+      // 4. Interés Total (Calculado: Total - Monto)
+      document.getElementById('resumenInteresTotal').textContent = `$${activeCredit.interesTotal.toFixed(2)}`;
+
+      // 5. Cuota
+      const cuotaLabel = document.getElementById('resumenCuotaLabel');
+      if (activeCredit.modalidad === 'semanal') cuotaLabel.textContent = 'Cuota Semanal';
+      else if (activeCredit.modalidad === 'diario') cuotaLabel.textContent = 'Cuota Diaria';
+      else cuotaLabel.textContent = 'Cuota Mensual';
+
+      document.getElementById('resumenCuotaValor').textContent = `$${activeCredit.cuota.toFixed(2)}`;
+
+      // Badge de Modalidad
+      const badge = document.getElementById('badgeResumenModalidad');
+      badge.textContent = activeCredit.modalidad.toUpperCase();
+      if (activeCredit.modalidad === 'semanal') {
+        badge.className = 'text-[11px] font-bold text-emerald-300 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800/80 uppercase';
+      } else if (activeCredit.modalidad === 'diario') {
+        badge.className = 'text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-800/80 uppercase';
+      } else {
+        badge.className = 'text-[11px] font-bold text-blue-300 bg-blue-950/80 px-2.5 py-0.5 rounded-full border border-blue-800/80 uppercase';
+      }
+
+      // Desglose Total
+      document.getElementById('resumenTotalCalculado').textContent = `$${activeCredit.totalPagar.toFixed(2)}`;
+      document.getElementById('resumenFormulaTexto').textContent = `(${activeCredit.numCuotas} cuotas × $${activeCredit.cuota.toFixed(2)})`;
+
+      // Texto de Resumen en Footer
+      const footerSummary = document.getElementById('footerActiveSummary');
+      footerSummary.textContent = `$${activeCredit.monto.toFixed(2)} en ${activeCredit.plazoTexto} (${activeCredit.numCuotas} cuotas de $${activeCredit.cuota.toFixed(2)} = $${activeCredit.totalPagar.toFixed(2)})`;
+    }
+
+    // -------------------------------------------------------------------------
+    // ACCIONES DE BOTONES DEL FOOTER
+    // -------------------------------------------------------------------------
+    function handleCancelar() {
+      if (confirm('¿Desea restablecer los campos al valor inicial de $300 a 12 semanas?')) {
+        document.getElementById('inputClienteNombre').value = 'Juan Carlos López Pérez';
+        document.getElementById('inputClienteDui').value = '04891234-5';
+        document.getElementById('inputClienteTelefono').value = '7123-4567';
+        document.getElementById('selectSemanalMonto').value = '300';
+        document.getElementById('selectSemanalPlazo').value = '12';
+        document.getElementById('inputCuotaBuscar').value = '32.81';
+        switchTab('semanal');
+        setSemanalMode('manual');
+      }
+    }
+
+    function handleRevisarCuotas() {
+      const clienteNombre = document.getElementById('inputClienteNombre').value.trim() || 'Cliente Sin Nombre';
+      document.getElementById('modalClienteLabel').textContent = clienteNombre;
+      document.getElementById('modalModalidadLabel').textContent = `${activeCredit.modalidad.toUpperCase()} (${activeCredit.plazoTexto})`;
+      document.getElementById('modalTotalLabel').textContent = `$${activeCredit.totalPagar.toFixed(2)}`;
+
+      const tbody = document.getElementById('modalCuotasTableBody');
+      tbody.innerHTML = '';
+
+      const count = activeCredit.numCuotas || 1;
+      const today = new Date();
+
+      for (let i = 1; i <= count; i++) {
+        const dueDate = new Date(today);
+        if (activeCredit.modalidad === 'semanal') {
+          dueDate.setDate(dueDate.getDate() + (i * 7));
+        } else if (activeCredit.modalidad === 'diario') {
+          dueDate.setDate(dueDate.getDate() + i);
+        } else {
+          dueDate.setMonth(dueDate.getMonth() + i);
+        }
+
+        const dateStr = dueDate.toLocaleDateString('es-SV', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/50';
+        tr.innerHTML = `
+          <td class="py-2 px-3 font-mono text-slate-300">Cuota #${i} de ${count}</td>
+          <td class="py-2 px-3 text-slate-200">${dateStr}</td>
+          <td class="py-2 px-3 text-right font-black text-emerald-400">$${activeCredit.cuota.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      document.getElementById('modalRevisarCuotas').classList.remove('hidden');
+    }
+
+    function closeModalRevisarCuotas() {
+      document.getElementById('modalRevisarCuotas').classList.add('hidden');
+    }
+
+    function handleConfirmarGuardar() {
+      const clienteNombre = document.getElementById('inputClienteNombre').value.trim() || 'Cliente Sin Nombre';
+      document.getElementById('savedClientName').textContent = clienteNombre;
+      document.getElementById('savedMonto').textContent = `$${activeCredit.monto.toFixed(2)}`;
+      document.getElementById('savedPlazo').textContent = `${activeCredit.modalidad.toUpperCase()} (${activeCredit.plazoTexto})`;
+      
+      const mod = activeCredit.modalidad === 'semanal' ? 'semana' : activeCredit.modalidad === 'diario' ? 'día' : 'mes';
+      document.getElementById('savedCuota').textContent = `$${activeCredit.cuota.toFixed(2)} / ${mod}`;
+      document.getElementById('savedInteres').textContent = `$${activeCredit.interesTotal.toFixed(2)} (Tasa: ${activeCredit.tasaOficialTexto})`;
+      document.getElementById('savedTotal').textContent = `$${activeCredit.totalPagar.toFixed(2)}`;
+
+      document.getElementById('modalGuardadoExito').classList.remove('hidden');
+    }
+
+    function closeModalGuardado() {
+      document.getElementById('modalGuardadoExito').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>

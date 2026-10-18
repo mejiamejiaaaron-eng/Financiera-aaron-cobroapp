@@ -61,6 +61,7 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [startDate, setStartDate] = useState(today);
   const [firstDueDate, setFirstDueDate] = useState(today);
   const [creditNotes, setCreditNotes] = useState('');
+  const [customInstallmentAmount, setCustomInstallmentAmount] = useState<number | undefined>(undefined);
 
   // UI state
   const [activeTab, setActiveTab] = useState<'form' | 'preview'>('form');
@@ -76,6 +77,11 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
     setModality(plan.modality);
     setTotalInstallments(plan.totalInstallments);
     setInterestRate(plan.interestRate);
+    if (plan.cuotaSugerida && plan.cuotaSugerida > 0) {
+      setCustomInstallmentAmount(plan.cuotaSugerida);
+    } else {
+      setCustomInstallmentAmount(undefined);
+    }
     setSuccessMessage(
       `¡Simulación aplicada con éxito! Monto: $${plan.principal.toFixed(2)} | Modalidad: ${plan.modality} | Plazo: ${plan.totalInstallments} ${plan.modality === 'diario' ? 'días' : plan.modality === 'semanal' ? 'semanas' : plan.modality === 'mensual' ? 'meses' : 'cuotas'} | Tasa: ${plan.interestRate}%`
     );
@@ -88,6 +94,7 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
     setModality('semanal');
     setTotalInstallments(plan.plazo_semanas);
     setInterestRate(parseFloat(plan.tasa));
+    setCustomInstallmentAmount(plan.cuota);
     setSuccessMessage(
       `¡Plan de Crédito Popular aplicado con éxito! Monto: $${plan.monto} | ${plan.plazo_semanas} semanas | Cuota: $${plan.cuota.toFixed(2)} (Tasa: ${plan.tasa})`
     );
@@ -119,8 +126,9 @@ export const AddClientCreditModal: React.FC<Props> = ({ isOpen, onClose }) => {
       modality,
       totalInstallments: Number(totalInstallments) || 1,
       firstDueDate,
+      customInstallmentAmount: modality === 'semanal' ? customInstallmentAmount : undefined,
     });
-  }, [principal, interestRate, interestType, modality, totalInstallments, firstDueDate]);
+  }, [principal, interestRate, interestType, modality, totalInstallments, firstDueDate, customInstallmentAmount]);
 
   if (!isOpen) return null;
 

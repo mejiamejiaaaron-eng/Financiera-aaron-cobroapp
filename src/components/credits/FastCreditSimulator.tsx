@@ -47,8 +47,48 @@ export const FastCreditSimulator: React.FC<Props> = ({
   // ==========================================
   // 1. SEMANAL (CRÉDITO POPULAR OFICIAL)
   // ==========================================
-  const [semanalMonto, setSemanalMonto] = useState<number>(defaultPrincipal || 300);
-  const [semanalSemanas, setSemanalSemanas] = useState<number>(12);
+  const [semanalMonto, setSemanalMonto] = useState<number>(defaultPrincipal || 700);
+  const [semanalSemanas, setSemanalSemanas] = useState<number>(10);
+  const [semanalMode, setSemanalMode] = useState<'auto' | 'manual'>('auto');
+  const [inputCuotaAuto, setInputCuotaAuto] = useState<string>('82.32');
+  const [autoSearchError, setAutoSearchError] = useState<string | null>(null);
+  const [autoSearchResult, setAutoSearchResult] = useState<PopularCreditPlan | null>(() => {
+    return getPopularCreditPlan(700, 10);
+  });
+
+  const handleBuscarCreditoPorCuota = (customVal?: string) => {
+    setAutoSearchError(null);
+    const rawVal = customVal !== undefined ? customVal : inputCuotaAuto;
+    const num = parseFloat(rawVal);
+    if (isNaN(num) || num <= 0) {
+      setAutoSearchError('Por favor ingrese un número de cuota válido mayor a 0.');
+      setAutoSearchResult(null);
+      return;
+    }
+
+    // Búsqueda inversa en la base de datos de créditos populares
+    let foundPlan: PopularCreditPlan | null = null;
+    for (const row of POPULAR_CREDIT_ROWS) {
+      for (const w of POPULAR_CREDIT_WEEKS) {
+        const c = row.cuotas[w];
+        if (c !== undefined && Math.abs(c - num) < 0.02) {
+          foundPlan = getPopularCreditPlan(row.monto, w);
+          break;
+        }
+      }
+      if (foundPlan) break;
+    }
+
+    if (foundPlan) {
+      setAutoSearchResult(foundPlan);
+      setAutoSearchError(null);
+      setSemanalMonto(foundPlan.monto);
+      setSemanalSemanas(foundPlan.plazo_semanas);
+    } else {
+      setAutoSearchResult(null);
+      setAutoSearchError(`No se encontró ningún crédito que coincida exactamente con la cuota de $${num.toFixed(2)}.`);
+    }
+  };
 
   // Row for current selected or closest popular row
   const popularRow = useMemo(() => {
@@ -368,96 +408,271 @@ export const FastCreditSimulator: React.FC<Props> = ({
       {/* PESTAÑA 1: SEMANAL (TABLA OFICIAL CRÉDITO POPULAR) */}
       {/* ========================================================================= */}
       {activeTab === 'semanal' && (
-        <div className="space-y-3 text-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {/* Selector de Monto Oficial */}
+        <div className="space-y-4 text-xs">
+          {/* SELECTOR TOGGLE: MODO AUTOMÁTICO vs MODO MANUAL */}
+          <div className="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2.5">
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">
-                Monto Oficial ($)
-              </label>
-              <select
-                value={popularRow.monto}
-                onChange={e => setSemanalMonto(Number(e.target.value))}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold focus:outline-hidden focus:border-emerald-500"
-              >
-                {POPULAR_CREDIT_ROWS.map(r => (
-                  <option key={r.monto} value={r.monto}>
-                    ${r.monto}.00 (Tasa {r.tasaHasta10} / {r.tasa12Mas})
-                  </option>
-                ))}
-              </select>
+              <div className="text-xs font-bold text-slate-200 flex items-center gap-2">
+                <span>Modo de Operación Semanal:</span>
+                <span className={`font-mono uppercase px-2 py-0.5 rounded text-[10px] font-bold border ${
+                  semanalMode === 'auto'
+                    ? 'text-emerald-400 bg-emerald-950/80 border-emerald-800/80'
+                    : 'text-blue-400 bg-blue-950/80 border-blue-800/80'
+                }`}>
+                  {semanalMode === 'auto' ? '⚡ Modo Automático (Búsqueda Inversa)' : '🛠️ Modo Manual (Dropdowns)'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                {semanalMode === 'auto'
+                  ? 'Ingresa la cuota deseada y el sistema deducirá el monto oficial y plazo exacto.'
+                  : 'Selecciona el monto oficial y el plazo en semanas para calcular la cuota.'}
+              </p>
             </div>
 
-            {/* Selector de Plazo en Semanas */}
-            <div>
-              <label className="block text-slate-300 font-semibold mb-1">
-                Plazo (Semanas)
-              </label>
-              <select
-                value={semanalSemanas}
-                onChange={e => setSemanalSemanas(Number(e.target.value))}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold focus:outline-hidden focus:border-emerald-500"
-              >
-                {POPULAR_CREDIT_WEEKS.map(w => (
-                  <option key={w} value={w}>
-                    {w} semanas ({popularRow.cuotas[w] ? `$${popularRow.cuotas[w].toFixed(2)}/sem` : 'N/D'})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Resultado y Botón de Aplicar Directo */}
-            <div className="flex flex-col justify-end">
+            {/* BOTONES DE TOGGLE */}
+            <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold gap-1 w-full sm:w-auto">
               <button
                 type="button"
-                onClick={() => applySemanal()}
-                disabled={!currentPopularPlan}
-                className={`w-full py-2 px-3 font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
-                  appliedFeedback === 'semanal'
-                    ? 'bg-emerald-500 text-white shadow-emerald-500/30'
-                    : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                onClick={() => setSemanalMode('auto')}
+                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
+                  semanalMode === 'auto'
+                    ? 'bg-emerald-600 text-white shadow'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
-                {appliedFeedback === 'semanal' ? (
-                  <>
-                    <Check className="w-4 h-4 text-white" />
-                    <span>✓ ¡Plan Semanal Aplicado!</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 text-emerald-200" />
-                    <span>⚡ Aplicar al Crédito Semanal</span>
-                  </>
-                )}
+                ⚡ Modo Automático
+              </button>
+              <button
+                type="button"
+                onClick={() => setSemanalMode('manual')}
+                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
+                  semanalMode === 'manual'
+                    ? 'bg-emerald-600 text-white shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                🛠️ Modo Manual
               </button>
             </div>
           </div>
 
-          {/* Tarjeta de Resumen Semanal Seleccionado */}
-          {currentPopularPlan && (
-            <div className="p-3 bg-emerald-950/40 border border-emerald-800/80 rounded-xl grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
-              <div>
-                <span className="text-[10px] text-slate-400 block">Monto</span>
-                <span className="text-sm font-black text-white">${currentPopularPlan.monto}</span>
+          {/* 1.A: MODO AUTOMÁTICO (BÚSQUEDA INVERSA) */}
+          {semanalMode === 'auto' && (
+            <div className="space-y-3">
+              <div className="p-3.5 bg-emerald-950/30 border border-emerald-800/60 rounded-xl space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="inputCuotaAutoFast" className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                    <TableIcon className="w-4 h-4 text-emerald-400" />
+                    <span>Ingresa el Valor de la Cuota Semanal ($)</span>
+                  </label>
+                  <span className="text-[10px] text-slate-400">Presiona Enter o "Buscar Crédito"</span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <span className="absolute left-3 top-2 text-slate-400 font-bold">$</span>
+                    <input
+                      id="inputCuotaAutoFast"
+                      type="number"
+                      step="any"
+                      value={inputCuotaAuto}
+                      onChange={e => setInputCuotaAuto(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleBuscarCreditoPorCuota();
+                        }
+                      }}
+                      placeholder="Ej. 82.32, 116.40, 38.03..."
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-white font-mono font-bold text-sm focus:outline-hidden focus:border-emerald-500"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleBuscarCreditoPorCuota()}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 text-xs transition"
+                  >
+                    <TableIcon className="w-3.5 h-3.5" />
+                    <span>Buscar Crédito</span>
+                  </button>
+                </div>
+
+                {/* Atajos rápidos de la tabla */}
+                <div className="flex flex-wrap items-center gap-1 text-[11px] pt-1">
+                  <span className="text-slate-400">Ejemplos:</span>
+                  {[82.32, 38.03, 116.40, 142.88, 99.02, 60.18].map(val => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => {
+                        setInputCuotaAuto(val.toFixed(2));
+                        handleBuscarCreditoPorCuota(val.toFixed(2));
+                      }}
+                      className="px-2 py-0.5 rounded bg-slate-900 hover:bg-emerald-950 border border-slate-700 text-emerald-300 font-mono transition cursor-pointer"
+                    >
+                      ${val.toFixed(2)}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] text-slate-400 block">Plazo</span>
-                <span className="text-sm font-black text-white">{currentPopularPlan.plazo_semanas} sem.</span>
+
+              {/* Mensaje de Error en Búsqueda Inversa */}
+              {autoSearchError && (
+                <div className="p-3 bg-rose-950/60 border border-rose-800 rounded-xl text-rose-300 text-xs flex items-center gap-2">
+                  <span>⚠️ {autoSearchError}</span>
+                </div>
+              )}
+
+              {/* Resultado de la Búsqueda Inversa Automática */}
+              {autoSearchResult && (
+                <div className="p-3.5 bg-gradient-to-r from-emerald-950/60 via-slate-900 to-emerald-950/40 border border-emerald-600/70 rounded-xl space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-emerald-900/50">
+                    <span className="text-xs font-black uppercase text-emerald-300 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      Crédito Oficial Encontrado
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => applySemanal(autoSearchResult)}
+                      className={`px-3 py-1 font-bold rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer active:scale-95 ${
+                        appliedFeedback === 'semanal'
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow'
+                      }`}
+                    >
+                      {appliedFeedback === 'semanal' ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>✓ ¡Aplicado al Crédito!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>⚡ Aplicar al Crédito Semanal</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                    <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block uppercase">Monto</span>
+                      <span className="text-base font-black text-white">${autoSearchResult.monto.toFixed(2)}</span>
+                    </div>
+                    <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block uppercase">Plazo</span>
+                      <span className="text-base font-black text-white">{autoSearchResult.plazo_semanas} semanas</span>
+                    </div>
+                    <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block uppercase">Cuota</span>
+                      <span className="text-base font-black text-emerald-400">${autoSearchResult.cuota.toFixed(2)}</span>
+                    </div>
+                    <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block uppercase">Tasa / Interés</span>
+                      <span className="text-xs font-bold text-amber-300 block mt-1">
+                        {autoSearchResult.tasa} (${autoSearchResult.interes.toFixed(2)})
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 1.B: MODO MANUAL (DROPDOWNS MONTO Y PLAZO) */}
+          {semanalMode === 'manual' && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Selector de Monto Oficial */}
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">
+                    Monto Oficial ($)
+                  </label>
+                  <select
+                    value={popularRow.monto}
+                    onChange={e => setSemanalMonto(Number(e.target.value))}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold focus:outline-hidden focus:border-emerald-500"
+                  >
+                    {POPULAR_CREDIT_ROWS.map(r => (
+                      <option key={r.monto} value={r.monto}>
+                        ${r.monto}.00 (Tasa {r.tasaHasta10} / {r.tasa12Mas})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Selector de Plazo en Semanas */}
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">
+                    Plazo (Semanas)
+                  </label>
+                  <select
+                    value={semanalSemanas}
+                    onChange={e => setSemanalSemanas(Number(e.target.value))}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold focus:outline-hidden focus:border-emerald-500"
+                  >
+                    {POPULAR_CREDIT_WEEKS.map(w => (
+                      <option key={w} value={w}>
+                        {w} semanas ({popularRow.cuotas[w] ? `$${popularRow.cuotas[w].toFixed(2)}/sem` : 'N/D'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Botón Verde: Aplicar al Crédito Semanal */}
+                <div className="flex flex-col justify-end">
+                  <button
+                    type="button"
+                    onClick={() => applySemanal()}
+                    disabled={!currentPopularPlan}
+                    className={`w-full py-2 px-3 font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+                      appliedFeedback === 'semanal'
+                        ? 'bg-emerald-500 text-white shadow-emerald-500/30'
+                        : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                    }`}
+                  >
+                    {appliedFeedback === 'semanal' ? (
+                      <>
+                        <Check className="w-4 h-4 text-white" />
+                        <span>✓ ¡Plan Semanal Aplicado!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 text-emerald-200" />
+                        <span>⚡ Aplicar al Crédito Semanal</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] text-slate-400 block">Tasa Oficial</span>
-                <span className="text-sm font-black text-emerald-400">{currentPopularPlan.tasa}</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-400 block">Interés Total</span>
-                <span className="text-sm font-black text-amber-400">${currentPopularPlan.interes.toFixed(2)}</span>
-              </div>
-              <div className="col-span-2 sm:col-span-1 bg-emerald-900/60 p-1.5 rounded-lg border border-emerald-700/60">
-                <span className="text-[10px] text-emerald-200 block font-semibold">Cuota Semanal</span>
-                <span className="text-base font-black text-emerald-300">
-                  ${currentPopularPlan.cuota.toFixed(2)}
-                </span>
-              </div>
+
+              {/* Tarjeta de Resumen Semanal Seleccionado */}
+              {currentPopularPlan && (
+                <div className="p-3 bg-emerald-950/40 border border-emerald-800/80 rounded-xl grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Monto</span>
+                    <span className="text-sm font-black text-white">${currentPopularPlan.monto}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Plazo</span>
+                    <span className="text-sm font-black text-white">{currentPopularPlan.plazo_semanas} sem.</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Tasa Oficial</span>
+                    <span className="text-sm font-black text-emerald-400">{currentPopularPlan.tasa}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Interés Total</span>
+                    <span className="text-sm font-black text-amber-400">${currentPopularPlan.interes.toFixed(2)}</span>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1 bg-emerald-900/60 p-1.5 rounded-lg border border-emerald-700/60">
+                    <span className="text-[10px] text-emerald-200 block font-semibold">Cuota Semanal</span>
+                    <span className="text-base font-black text-emerald-300">
+                      ${currentPopularPlan.cuota.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

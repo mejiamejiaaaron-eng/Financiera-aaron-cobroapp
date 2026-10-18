@@ -40,7 +40,7 @@ export const AdminCodeViewerModal: React.FC<Props> = ({ isOpen, onClose }) => {
     'src/data/popularCreditsData.ts',
     'src/App.tsx',
     'src/utils/financialCalculations.ts',
-    'src/types.ts',
+    'src/types/index.ts',
     'src/components/credits/PopularCreditsModal.tsx',
     'src/components/credits/PopularCreditsView.tsx',
     'server.ts',

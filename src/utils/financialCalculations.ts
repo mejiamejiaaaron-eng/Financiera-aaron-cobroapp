@@ -33,8 +33,9 @@ export function calculateLoanSchedule(params: {
   modality: PaymentModality;
   totalInstallments: number;
   firstDueDate: string;
+  customInstallmentAmount?: number;
 }): LoanCalculationResult {
-  const { principal, interestRate, modality, totalInstallments, firstDueDate } = params;
+  const { principal, interestRate, modality, totalInstallments, firstDueDate, customInstallmentAmount } = params;
 
   if (principal <= 0 || totalInstallments <= 0) {
     return {
@@ -48,14 +49,24 @@ export function calculateLoanSchedule(params: {
     };
   }
 
-  // Calculate total interest: standard microcredit / flat rate
-  // totalInterest = principal * (rate / 100)
-  const totalInterest = Math.round(principal * (interestRate / 100) * 100) / 100;
-  const totalAmountToPay = Math.round((principal + totalInterest) * 100) / 100;
-  
-  // Standard installment amount rounded to 2 decimals
-  const rawInstallment = totalAmountToPay / totalInstallments;
-  const standardInstallment = Math.round(rawInstallment * 100) / 100;
+  let totalInterest: number;
+  let totalAmountToPay: number;
+  let standardInstallment: number;
+
+  if (customInstallmentAmount && customInstallmentAmount > 0) {
+    // REGLA ESTRICTA DE LA TABLA: Cuota fija oficial
+    // Total = Cuota * Plazo | Interés = Total - Principal
+    standardInstallment = Math.round(customInstallmentAmount * 100) / 100;
+    totalAmountToPay = Math.round(standardInstallment * totalInstallments * 100) / 100;
+    totalInterest = Math.max(0, Math.round((totalAmountToPay - principal) * 100) / 100);
+  } else {
+    // Calculate total interest: standard microcredit / flat rate
+    // totalInterest = principal * (rate / 100)
+    totalInterest = Math.round(principal * (interestRate / 100) * 100) / 100;
+    totalAmountToPay = Math.round((principal + totalInterest) * 100) / 100;
+    const rawInstallment = totalAmountToPay / totalInstallments;
+    standardInstallment = Math.round(rawInstallment * 100) / 100;
+  }
 
   const installments: Array<{
     installmentNumber: number;

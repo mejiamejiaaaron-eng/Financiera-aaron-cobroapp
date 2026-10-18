@@ -34,6 +34,13 @@ app.post('/api/ocr-scan', async (req, res) => {
       return res.status(400).json({ error: 'No se recibió ninguna imagen para procesar.' });
     }
 
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(503).json({
+        error: 'La variable de entorno GEMINI_API_KEY no está configurada en el servidor. Configure la clave para usar el escaneo OCR asistido por IA.',
+        fallback: true,
+      });
+    }
+
     const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
 
     const imagePart = {
@@ -116,7 +123,7 @@ app.get('/api/admin/files-list', (req, res) => {
     'src/data/popularCreditsData.ts',
     'src/App.tsx',
     'src/utils/financialCalculations.ts',
-    'src/types.ts',
+    'src/types/index.ts',
     'src/components/credits/PopularCreditsModal.tsx',
     'src/components/credits/PopularCreditsView.tsx',
     'src/context/AppContext.tsx',
@@ -155,6 +162,9 @@ app.get('/api/admin/source-code', async (req, res) => {
 // Setup Vite middleware in dev or static files in production
 async function start() {
   const isProd = process.env.NODE_ENV === 'production';
+
+  // Serve static files from public directory
+  app.use(express.static(path.resolve(__dirname, 'public')));
 
   if (!isProd) {
     const { createServer: createViteServer } = await import('vite');
