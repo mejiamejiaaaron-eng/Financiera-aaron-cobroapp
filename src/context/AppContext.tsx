@@ -79,6 +79,8 @@ interface AppContextType {
   setIsAddCreditModalOpen: (open: boolean) => void;
   selectedClientIdForDossier: string | null;
   setSelectedClientIdForDossier: (clientId: string | null) => void;
+  isQuickSearchOpen: boolean;
+  setIsQuickSearchOpen: React.Dispatch<React.SetStateAction<boolean>>;
   syncStatus: 'synced' | 'saving' | 'offline' | 'pending';
   // Actions
   handleRecordPayment: (params: {
@@ -141,6 +143,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeReceiptModalPayment, setActiveReceiptModalPayment] = useState<Payment | null>(null);
   const [isAddCreditModalOpen, setIsAddCreditModalOpen] = useState(false);
   const [selectedClientIdForDossier, setSelectedClientIdForDossier] = useState<string | null>(null);
+  const [isQuickSearchOpen, setIsQuickSearchOpen] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'synced' | 'saving' | 'offline' | 'pending'>('synced');
 
   // Real-time synchronization across browser tabs and devices (Section 4)
@@ -663,6 +666,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsAddCreditModalOpen,
         selectedClientIdForDossier,
         setSelectedClientIdForDossier,
+        isQuickSearchOpen,
+        setIsQuickSearchOpen,
         syncStatus,
         handleRecordPayment,
         handleRequestReversion,

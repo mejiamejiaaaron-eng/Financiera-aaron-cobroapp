@@ -159,6 +159,7 @@ export interface Payment {
   isReversed: boolean;
   reversionId?: string;
   createdAt: string;
+  appliedBreakdown?: { installmentId: string; installmentNumber: number; amount: number }[];
 }
 
 export type ReversionStatus = 'pending' | 'approved' | 'rejected';

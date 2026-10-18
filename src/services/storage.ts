@@ -226,25 +226,78 @@ export function recordPaymentTransaction(
   const installmentIndex = db.installments.findIndex(i => i.id === installmentId);
   if (installmentIndex === -1) throw new Error('Cuota no encontrada');
 
-  const installment = { ...db.installments[installmentIndex] };
+
+  // Validate amount does not exceed total pending balance of the credit
+  if (receivedAmount > credit.balancePending + 0.05) {
+    throw new Error(`El importe ($${receivedAmount.toFixed(2)}) no puede exceder el saldo total pendiente del crédito ($${credit.balancePending.toFixed(2)})`);
+  }
+
   const today = getElSalvadorDate();
   const time = getElSalvadorTimeString();
 
-  // Validate amount does not exceed installment balance
-  if (receivedAmount > installment.balance + 0.01) {
-    throw new Error(`El importe ($${receivedAmount.toFixed(2)}) no puede exceder el saldo de la cuota ($${installment.balance.toFixed(2)})`);
+  // Find all installments of this credit ordered by installment number
+  const newInstallments = db.installments.map(i => ({ ...i }));
+  const targetCreditInstallments = newInstallments
+    .filter(i => i.creditId === creditId)
+    .sort((a, b) => a.installmentNumber - b.installmentNumber);
+
+  const selectedInst = targetCreditInstallments.find(i => i.id === installmentId);
+  if (!selectedInst) throw new Error('Cuota no encontrada en el crédito');
+
+  // Queue of installments to apply money:
+  // 1. First, the selected installment
+  // 2. Next, subsequent unpaid installments (#(n+1), #(n+2), ...)
+  // 3. Then, any earlier unpaid installments if any (#1, #2, ...)
+  const subsequentUnpaid = targetCreditInstallments.filter(
+    i => i.installmentNumber > selectedInst.installmentNumber && i.balance > 0.001
+  );
+  const earlierUnpaid = targetCreditInstallments.filter(
+    i => i.installmentNumber < selectedInst.installmentNumber && i.balance > 0.001
+  );
+
+  const applyQueue = [selectedInst, ...subsequentUnpaid, ...earlierUnpaid];
+
+  let remainingMoney = Math.round(receivedAmount * 100) / 100;
+  const appliedBreakdown: { installmentId: string; installmentNumber: number; amount: number }[] = [];
+
+  for (const instToPay of applyQueue) {
+    if (remainingMoney <= 0.001) break;
+
+    const needed = instToPay.balance;
+    const canPay = Math.min(remainingMoney, needed);
+    const amountToApply = Math.round(canPay * 100) / 100;
+
+    if (amountToApply > 0) {
+      const newPaid = Math.round((instToPay.paidAmount + amountToApply) * 100) / 100;
+      const newBal = Math.max(0, Math.round((instToPay.scheduledAmount - newPaid) * 100) / 100);
+
+      instToPay.paidAmount = newPaid;
+      instToPay.balance = newBal;
+      instToPay.status = newBal <= 0.001 ? 'paid' : 'partial';
+      instToPay.lastPaymentDate = today;
+      if (instToPay.status === 'paid') {
+        instToPay.daysOverdue = 0;
+      }
+
+      appliedBreakdown.push({
+        installmentId: instToPay.id,
+        installmentNumber: instToPay.installmentNumber,
+        amount: amountToApply,
+      });
+
+      remainingMoney = Math.round((remainingMoney - amountToApply) * 100) / 100;
+    }
   }
 
-  // Update installment
-  const newInstallmentPaid = Math.round((installment.paidAmount + receivedAmount) * 100) / 100;
-  const newInstallmentBalance = Math.max(0, Math.round((installment.scheduledAmount - newInstallmentPaid) * 100) / 100);
-
-  installment.paidAmount = newInstallmentPaid;
-  installment.balance = newInstallmentBalance;
-  installment.status = newInstallmentBalance <= 0.001 ? 'paid' : 'partial';
-  installment.lastPaymentDate = today;
-  if (installment.status === 'paid') {
-    installment.daysOverdue = 0;
+  // Absorb any tiny leftover penny rounding into the last affected installment
+  if (remainingMoney > 0.001 && appliedBreakdown.length > 0) {
+    const lastItem = appliedBreakdown[appliedBreakdown.length - 1];
+    const inst = targetCreditInstallments.find(i => i.id === lastItem.installmentId);
+    if (inst) {
+      inst.paidAmount = Math.round((inst.paidAmount + remainingMoney) * 100) / 100;
+      inst.balance = Math.max(0, Math.round((inst.balance - remainingMoney) * 100) / 100);
+      lastItem.amount = Math.round((lastItem.amount + remainingMoney) * 100) / 100;
+    }
   }
 
   // Update credit
@@ -268,13 +321,13 @@ export function recordPaymentTransaction(
     creditId,
     clientId: credit.clientId,
     clientName: credit.clientName,
-    installmentId,
-    installmentNumber: installment.installmentNumber,
+    installmentId: selectedInst.id,
+    installmentNumber: selectedInst.installmentNumber,
     date: today,
     time,
-    scheduledAmount: installment.scheduledAmount,
+    scheduledAmount: selectedInst.scheduledAmount,
     receivedAmount,
-    installmentRemainingBalance: newInstallmentBalance,
+    installmentRemainingBalance: selectedInst.balance,
     creditRemainingBalance: updatedCredit.balancePending,
     collectorId: currentUser.id,
     collectorName: currentUser.name,
@@ -282,23 +335,26 @@ export function recordPaymentTransaction(
     notes,
     isReversed: false,
     createdAt: new Date().toISOString(),
+    appliedBreakdown,
   };
 
-  // Create Audit Log
+  // Create Audit Log with multi-installment details if surplus occurred
+  const coveredCount = appliedBreakdown.length;
+  const breakdownDesc = coveredCount > 1
+    ? ` Pago superior a la cuota cubriendo ${coveredCount} cuotas (${appliedBreakdown.map(b => `#${b.installmentNumber}: $${b.amount.toFixed(2)}`).join(', ')}).`
+    : '';
+
   const audit: AuditLog = {
     id: `audit-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
     timestamp: new Date().toISOString(),
     userId: currentUser.id,
     userName: currentUser.name,
     userRole: currentUser.role,
-    action: newInstallmentBalance <= 0.001 ? 'REGISTRO_PAGO_COMPLETO' : 'REGISTRO_ABONO_PARCIAL',
+    action: selectedInst.balance <= 0.001 ? 'REGISTRO_PAGO_COMPLETO' : 'REGISTRO_ABONO_PARCIAL',
     targetType: 'payment',
     targetId: payment.id,
-    details: `${payment.collectorName} registró ${payment.receivedAmount.toFixed(2)} (${payment.paymentMethod}) para cuota #${installment.installmentNumber} de ${credit.clientName}. Recibo: ${receiptNumber}. Saldo cuota: $${newInstallmentBalance.toFixed(2)}.`,
+    details: `${payment.collectorName} registró $${payment.receivedAmount.toFixed(2)} (${payment.paymentMethod}) para cuota #${selectedInst.installmentNumber} de ${credit.clientName}.${breakdownDesc} Recibo: ${receiptNumber}. Saldo pendiente crédito: $${updatedCredit.balancePending.toFixed(2)}.`,
   };
-
-  const newInstallments = [...db.installments];
-  newInstallments[installmentIndex] = installment;
 
   const newCredits = [...db.credits];
   newCredits[creditIndex] = updatedCredit;
@@ -422,19 +478,33 @@ export function approvePaymentReversion(
   payment.reversionId = request.id;
 
   // Restore installment balances
-  const instIndex = db.installments.findIndex(i => i.id === payment.installmentId);
   const newInstallments = [...db.installments];
+  const today = getElSalvadorDate();
 
-  if (instIndex !== -1) {
-    const inst = { ...db.installments[instIndex] };
-    const restoredPaid = Math.max(0, Math.round((inst.paidAmount - payment.receivedAmount) * 100) / 100);
-    const restoredBalance = Math.round((inst.scheduledAmount - restoredPaid) * 100) / 100;
-    
-    inst.paidAmount = restoredPaid;
-    inst.balance = restoredBalance;
+  if (payment.appliedBreakdown && payment.appliedBreakdown.length > 0) {
+    for (const item of payment.appliedBreakdown) {
+      const idx = newInstallments.findIndex(i => i.id === item.installmentId);
+      if (idx !== -1) {
+        const inst = { ...newInstallments[idx] };
+        const restoredPaid = Math.max(0, Math.round((inst.paidAmount - item.amount) * 100) / 100);
+        const restoredBalance = Math.round((inst.scheduledAmount - restoredPaid) * 100) / 100;
+        inst.paidAmount = restoredPaid;
+        inst.balance = restoredBalance;
+        newInstallments[idx] = refreshInstallmentStatus(inst, today);
+      }
+    }
+  } else {
+    const instIndex = db.installments.findIndex(i => i.id === payment.installmentId);
+    if (instIndex !== -1) {
+      const inst = { ...db.installments[instIndex] };
+      const restoredPaid = Math.max(0, Math.round((inst.paidAmount - payment.receivedAmount) * 100) / 100);
+      const restoredBalance = Math.round((inst.scheduledAmount - restoredPaid) * 100) / 100;
+      
+      inst.paidAmount = restoredPaid;
+      inst.balance = restoredBalance;
 
-    const today = getElSalvadorDate();
-    newInstallments[instIndex] = refreshInstallmentStatus(inst, today);
+      newInstallments[instIndex] = refreshInstallmentStatus(inst, today);
+    }
   }
 
   // Restore credit balances

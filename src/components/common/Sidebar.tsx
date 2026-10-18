@@ -17,6 +17,7 @@ import {
   Trash2,
   KeyRound,
   Table,
+  Search,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp, AppView } from '../../context/AppContext';
@@ -42,6 +43,7 @@ export const Sidebar: React.FC<Props> = ({
     setCurrentView,
     metrics,
     setIsAddCreditModalOpen,
+    setIsQuickSearchOpen,
     database,
   } = useApp();
 
@@ -216,7 +218,28 @@ export const Sidebar: React.FC<Props> = ({
         </div>
 
         {/* Navigation list */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+        <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
+          {/* Botón de Búsqueda Rápida de Clientes */}
+          <div className="pb-2">
+            <button
+              type="button"
+              onClick={() => {
+                setIsQuickSearchOpen(true);
+                onClose();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-sky-500/50 rounded-xl text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer shadow-xs group"
+              title="Buscar cliente por nombre..."
+            >
+              <div className="flex items-center gap-2.5">
+                <Search className="w-4 h-4 text-sky-400 group-hover:scale-110 transition-transform" />
+                <span>Buscar cliente...</span>
+              </div>
+              <kbd className="text-[10px] bg-slate-900 border border-slate-700 px-1.5 py-0.5 rounded text-slate-400 font-mono">
+                Ctrl+K
+              </kbd>
+            </button>
+          </div>
+
           {navItems.map(item => {
             if (!item.allowed) return null;
 

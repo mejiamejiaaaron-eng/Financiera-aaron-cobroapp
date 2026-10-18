@@ -103,9 +103,9 @@ export function addDays(dateStr: string, days: number): string {
 
 /**
  * Calculates the next due date based on payment modality.
- * Option: for 'diario', skips Sundays (common Latin American microcredit rule).
+ * Regla de FINANCIERA AARON: en cobro diario ('diario') se cobra de lunes a lunes (consecutivo, ningún día libre).
  */
-export function getNextDueDate(currentDateStr: string, modality: PaymentModality, skipSundays = true): string {
+export function getNextDueDate(currentDateStr: string, modality: PaymentModality, skipSundays = false): string {
   let nextDate = addDays(currentDateStr, 1);
   
   if (modality === 'diario') {
@@ -136,4 +136,30 @@ export function getNextDueDate(currentDateStr: string, modality: PaymentModality
   }
   
   return nextDate;
+}
+
+/**
+ * Calculates the default first due date based on disbursement/delivery date and payment modality.
+ * En cobro diario se cobra al día siguiente sin excepción (de lunes a lunes).
+ */
+export function calculateDefaultFirstDueDate(deliveryDateStr: string, modality: PaymentModality): string {
+  if (!deliveryDateStr) return getElSalvadorDate();
+  return getNextDueDate(deliveryDateStr, modality, false);
+}
+
+/**
+ * Formats YYYY-MM-DD to friendly long display with day of week, e.g. "Lunes, 20/10/2026"
+ */
+export function formatDateWithDayDisplay(dateStr: string | undefined): string {
+  if (!dateStr) return '-';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  try {
+    const d = new Date(dateStr + 'T00:00:00');
+    const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const dayName = dayNames[d.getDay()];
+    return `${dayName}, ${parts[2]}/${parts[1]}/${parts[0]}`;
+  } catch {
+    return formatDateDisplay(dateStr);
+  }
 }

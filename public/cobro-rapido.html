@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscador de Clientes y Cobro de Cuotas</title>
+  <style>
+    /* ==========================================================================
+       VARIABLES Y ESTILOS GLOBALES (Vanilla CSS)
+       ========================================================================== */
+    :root {
+      --bg-dark: #0b1329;
+      --bg-card: #131e3a;
+      --bg-input: #070c1a;
+      --border-color: #2a3a5f;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
+      --info: #38bdf8;
+      --info-bg: rgba(56, 189, 248, 0.15);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px 40px 16px;
+    }
+
+    /* ==========================================================================
+       CABECERA SUPERIOR FIJA CON ICONO DE BÚSQUEDA
+       ========================================================================== */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+      max-width: 650px;
+      background: rgba(11, 19, 41, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 16px 0 12px 0;
+      border-bottom: 1px solid rgba(42, 58, 95, 0.6);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #1d4ed8 0%, #0284c7 100%);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.85rem;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(29, 78, 216, 0.3);
+    }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Botón / Icono de Búsqueda Principal */
+    .btn-search-trigger {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1.5px solid var(--border-color);
+      color: #f1f5f9;
+      padding: 9px 14px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-search-trigger:hover, .btn-search-trigger.active {
+      border-color: var(--primary);
+      background: #1e3a8a;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .btn-search-trigger svg {
+      width: 17px;
+      height: 17px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .btn-reset-data {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      padding: 9px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-reset-data:hover {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border-color: #64748b;
+    }
+
+    /* ==========================================================================
+       BARRA DE BÚSQUEDA DESPLEGABLE / EXPANDIBLE
+       ========================================================================== */
+    .search-panel {
+      position: relative;
+      margin-top: 12px;
+      display: none;
+      animation: expandSearch 0.25s ease-out forwards;
+    }
+
+    .search-panel.open {
+      display: block;
+    }
+
+    @keyframes expandSearch {
+      from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .search-box-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+      background-color: var(--bg-input);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius-md);
+      padding: 13px 44px 13px 44px;
+      font-size: 1rem;
+      color: var(--text-main);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-icon-inside {
+      position: absolute;
+      left: 14px;
+      color: #60a5fa;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-icon-inside svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      fill: none;
+    }
+
+    .btn-close-search {
+      position: absolute;
+      right: 12px;
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      line-height: 1;
+      transition: all 0.15s;
+    }
+
+    .btn-close-search:hover {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+
+    /* ==========================================================================
+       DROPDOWN DE RESULTADOS EN VIVO
+       ========================================================================== */
+    .results-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow);
+      max-height: 320px;
+      overflow-y: auto;
+      z-index: 200;
+      display: none;
+    }
+
+    .results-dropdown.active {
+      display: block;
+    }
+
+    .result-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(42, 58, 95, 0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.15s, padding-left 0.15s;
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .result-item:hover {
+      background-color: #1a2a4f;
+      padding-left: 20px;
+    }
+
+    .result-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .result-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #ffffff;
+    }
+
+    .result-status-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    .status-pendiente {
+      background-color: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-pagado {
+      background-color: var(--success-bg);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-afavor {
+      background-color: var(--info-bg);
+      color: var(--info);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .result-cuota-box {
+      text-align: right;
+    }
+
+    .result-cuota-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .result-cuota-value {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--success);
+      font-family: monospace;
+    }
+
+    .no-results {
+      padding: 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+
+    /* ==========================================================================
+       PANEL DE DETALLE Y COBRO
+       ========================================================================== */
+    .main-content {
+      width: 100%;
+      max-width: 650px;
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 44px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-search-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 10px 18px;
+      background: var(--primary);
+      color: white;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+      transition: transform 0.1s, background 0.2s;
+    }
+
+    .empty-search-cta:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .empty-search-cta:active {
+      transform: scale(0.98);
+    }
+
+    .client-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .client-title-area h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .client-id-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .metric-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: 1.4rem;
+      font-weight: 900;
+      font-family: monospace;
+    }
+
+    .metric-value.cuota {
+      color: #60a5fa;
+    }
+
+    .metric-value.saldo {
+      color: #f59e0b;
+    }
+
+    .metric-value.saldo.zero {
+      color: var(--success);
+    }
+
+    .metric-value.saldo.negative {
+      color: var(--info);
+    }
+
+    /* Formulario de Pago */
+    .payment-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .amount-input-wrapper {
+      position: relative;
+    }
+
+    .currency-symbol {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .amount-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px 16px 14px 42px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ffffff;
+      outline: none;
+      font-family: monospace;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .amount-input:focus {
+      border-color: var(--success);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+    }
+
+    /* Botones rápidos de ayuda */
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip-btn:hover {
+      background: #27354a;
+      color: #ffffff;
+      border-color: #60a5fa;
+    }
+
+    /* Botón Pagar */
+    .btn-pay {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+      transition: transform 0.1s, box-shadow 0.2s, background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-pay:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-pay:active {
+      transform: scale(0.98);
+    }
+
+    /* Mensajes de Alerta y Retroalimentación */
+    .feedback-message {
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      line-height: 1.4;
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .feedback-message.active {
+      display: block;
+    }
+
+    .feedback-partial {
+      background-color: var(--warning-bg);
+      border: 1px solid var(--warning);
+      color: #fef3c7;
+    }
+
+    .feedback-full {
+      background-color: var(--success-bg);
+      border: 1px solid var(--success);
+      color: #d1fae5;
+    }
+
+    .feedback-surplus {
+      background-color: var(--info-bg);
+      border: 1px solid var(--info);
+      color: #e0f2fe;
+    }
+
+    .feedback-error {
+      background-color: var(--danger-bg);
+      border: 1px solid var(--danger);
+      color: #fee2e2;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Historial local de pagos del cliente */
+    .history-section {
+      margin-top: 20px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 16px;
+    }
+
+    .history-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .history-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      background: var(--bg-input);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      color: #cbd5e1;
+    }
+
+    .history-amount {
+      font-weight: 700;
+      color: var(--success);
+      font-family: monospace;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+      .brand-title {
+        font-size: 0.95rem;
+      }
+      .btn-search-trigger span {
+        display: none;
+      }
+      .btn-search-trigger {
+        padding: 9px 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       CABECERA SUPERIOR CON BOTÓN/ICONO DE BÚSQUEDA
+       ========================================================================== -->
+  <header class="top-bar">
+    <div class="brand-row">
+      <div class="brand-left">
+        <div class="brand-avatar">FA</div>
+        <div>
+          <h1 class="brand-title">FINANCIERA AARON</h1>
+          <p class="brand-subtitle">Gestión Rápida de Cobros</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- ICONO DE BÚSQUEDA: Al hacer clic, abre la barra de búsqueda -->
+        <button id="btnSearchToggle" class="btn-search-trigger" title="Abrir buscador de clientes">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>Buscar</span>
+        </button>
+
+        <button id="btnResetData" class="btn-reset-data" title="Restablecer los 5 clientes iniciales">
+          Restablecer
+        </button>
+      </div>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA DESPLEGABLE / EXPANDIBLE -->
+    <div id="searchPanel" class="search-panel">
+      <div class="search-box-wrapper">
+        <span class="search-icon-inside">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Buscar cliente por nombre..."
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button id="btnCloseSearch" class="btn-close-search" title="Cerrar barra de búsqueda">✕</button>
+      </div>
+
+      <!-- Dropdown de Resultados en Tiempo Real -->
+      <div id="resultsDropdown" class="results-dropdown"></div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       CONTENEDOR PRINCIPAL: PANEL DE DETALLE Y COBRO
+       ========================================================================== -->
+  <main class="main-content">
+    
+    <!-- Estado Inicial: Sin cliente seleccionado -->
+    <div id="emptyPanel" class="card empty-state">
+      <div style="font-size: 2.5rem; margin-bottom: 10px;">🔍</div>
+      <h3 style="font-weight: 700; color: #fff; margin-bottom: 6px;">Buscar y Registrar Pago</h3>
+      <p style="font-size: 0.85rem; max-width: 380px; margin: 0 auto; line-height: 1.4;">
+        Haz clic en el icono de búsqueda superior para encontrar un cliente por su nombre y registrar pagos parciales, completos o con excedente.
+      </p>
+      <button id="emptySearchCta" class="empty-search-cta">
+        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.2;">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <span>Abrir Barra de Búsqueda</span>
+      </button>
+    </div>
+
+    <!-- Panel de Detalle y Pago (Se muestra al hacer clic en un cliente) -->
+    <div id="detailPanel" class="card" style="display: none;">
+      
+      <!-- Cabecera del Cliente -->
+      <div class="client-header">
+        <div class="client-title-area">
+          <h2 id="clientName">Nombre del Cliente</h2>
+          <span id="clientIdLabel" class="client-id-label">ID #0</span>
+        </div>
+        <span id="clientStatusBadge" class="result-status-tag status-pendiente">Pendiente</span>
+      </div>
+
+      <!-- Resumen Métricas: Cuota y Saldo -->
+      <div class="metrics-grid">
+        <div class="metric-box">
+          <div class="metric-label">Cuota Regular</div>
+          <div id="clientCuota" class="metric-value cuota">$0.00</div>
+        </div>
+        <div class="metric-box">
+          <div id="saldoLabel" class="metric-label">Saldo Pendiente</div>
+          <div id="clientSaldo" class="metric-value saldo">$0.00</div>
+        </div>
+      </div>
+
+      <!-- Mensaje de Feedback tras Registrar Pago -->
+      <div id="feedbackMessage" class="feedback-message"></div>
+
+      <!-- Formulario de Pago (Acepta cualquier monto válido > 0) -->
+      <form id="paymentForm" class="payment-form" novalidate>
+        <div class="form-group">
+          <label for="paymentAmount" class="form-label">Monto a Pagar ($):</label>
+          <div class="amount-input-wrapper">
+            <span class="currency-symbol">$</span>
+            <input
+              type="number"
+              id="paymentAmount"
+              class="amount-input"
+              step="0.01"
+              min="0.01"
+              placeholder="0.00"
+              required
+            >
+          </div>
+
+          <!-- Atajos rápidos para agilizar el cobro -->
+          <div class="quick-chips">
+            <button type="button" class="chip-btn" id="chipExact">Cuota exacta</button>
+            <button type="button" class="chip-btn" id="chipHalf">Mitad de cuota (50%)</button>
+            <button type="button" class="chip-btn" id="chipDouble">Doble cuota</button>
+            <button type="button" class="chip-btn" id="chipTotal">Saldo completo</button>
+          </div>
+        </div>
+
+        <button type="submit" id="btnPay" class="btn-pay">
+          <span>💳</span>
+          <span>Pagar</span>
+        </button>
+      </form>
+
+      <!-- Historial local de pagos del cliente -->
+      <div class="history-section">
+        <div class="history-title">Registro de Pagos Recientes</div>
+        <ul id="historyList" class="history-list">
+          <li class="history-item" style="color: var(--text-muted); font-style: italic;">Sin pagos registrados en esta sesión.</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ==========================================================================
+       LÓGICA JAVASCRIPT VANILLA
+       ========================================================================== -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. DATOS DE EJEMPLO INICIALES Y PERSISTENCIA (localStorage)
+    // -------------------------------------------------------------------------
+    const DEFAULT_CLIENTS = [
+      { id: 1, nombre: "Juan Pérez", cuota: 500, saldo: 500, estado: "pendiente", historial: [] },
+      { id: 2, nombre: "María López", cuota: 350, saldo: 350, estado: "pendiente", historial: [] },
+      { id: 3, nombre: "Carlos Ramírez", cuota: 600, saldo: 600, estado: "pendiente", historial: [] },
+      { id: 4, nombre: "Ana Torres", cuota: 450, saldo: 450, estado: "pendiente", historial: [] },
+      { id: 5, nombre: "Pedro Gómez", cuota: 200, saldo: 200, estado: "pendiente", historial: [] }
+    ];
+
+    const STORAGE_KEY = 'financiera_aaron_clientes_db';
+
+    // Cargar clientes desde localStorage o inicializar con los de ejemplo
+    function loadClients() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch (err) {
+        console.warn('Error leyendo localStorage, usando valores iniciales:', err);
+      }
+      saveClients(DEFAULT_CLIENTS);
+      return JSON.parse(JSON.stringify(DEFAULT_CLIENTS));
+    }
+
+    // Guardar cambios en localStorage
+    function saveClients(clientsArray) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(clientsArray));
+      } catch (err) {
+        console.error('Error guardando en localStorage:', err);
+      }
+    }
+
+    // Base de datos en memoria activa
+    let clients = loadClients();
+    let selectedClient = null;
+
+    // -------------------------------------------------------------------------
+    // 2. REFERENCIAS AL DOM
+    // -------------------------------------------------------------------------
+    const btnSearchToggle = document.getElementById('btnSearchToggle');
+    const searchPanel = document.getElementById('searchPanel');
+    const searchInput = document.getElementById('searchInput');
+    const btnCloseSearch = document.getElementById('btnCloseSearch');
+    const resultsDropdown = document.getElementById('resultsDropdown');
+    const btnResetData = document.getElementById('btnResetData');
+    const emptySearchCta = document.getElementById('emptySearchCta');
+
+    const emptyPanel = document.getElementById('emptyPanel');
+    const detailPanel = document.getElementById('detailPanel');
+    const clientNameEl = document.getElementById('clientName');
+    const clientIdLabelEl = document.getElementById('clientIdLabel');
+    const clientStatusBadgeEl = document.getElementById('clientStatusBadge');
+    const clientCuotaEl = document.getElementById('clientCuota');
+    const clientSaldoEl = document.getElementById('clientSaldo');
+    const saldoLabelEl = document.getElementById('saldoLabel');
+
+    const paymentForm = document.getElementById('paymentForm');
+    const paymentAmountInput = document.getElementById('paymentAmount');
+    const feedbackMessageEl = document.getElementById('feedbackMessage');
+    const historyListEl = document.getElementById('historyList');
+
+    const chipExact = document.getElementById('chipExact');
+    const chipHalf = document.getElementById('chipHalf');
+    const chipDouble = document.getElementById('chipDouble');
+    const chipTotal = document.getElementById('chipTotal');
+
+    // -------------------------------------------------------------------------
+    // 3. APERTURA Y CIERRE DE LA BARRA DE BÚSQUEDA AL DAR CLIC EN EL ICONO
+    // -------------------------------------------------------------------------
+    function openSearchBar() {
+      searchPanel.classList.add('open');
+      btnSearchToggle.classList.add('active');
+      searchInput.focus();
+      if (searchInput.value.trim().length > 0) {
+        handleSearch(searchInput.value);
+      }
+    }
+
+    function closeSearchBar() {
+      searchPanel.classList.remove('open');
+      btnSearchToggle.classList.remove('active');
+      resultsDropdown.classList.remove('active');
+    }
+
+    // Clic en el icono de búsqueda en la barra superior
+    btnSearchToggle.addEventListener('click', () => {
+      if (searchPanel.classList.contains('open')) {
+        closeSearchBar();
+      } else {
+        openSearchBar();
+      }
+    });
+
+    // Clic en el botón CTA en el panel vacío
+    emptySearchCta.addEventListener('click', openSearchBar);
+
+    // Clic en la cruz ✕ de la barra de búsqueda
+    btnCloseSearch.addEventListener('click', closeSearchBar);
+
+    // Cerrar con la tecla Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeSearchBar();
+      }
+    });
+
+    // Cerrar el dropdown si se hace clic afuera del panel de búsqueda
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.top-bar') && !e.target.closest('#emptySearchCta')) {
+        resultsDropdown.classList.remove('active');
+      }
+    });
+
+    // -------------------------------------------------------------------------
+    // 4. NORMALIZACIÓN DE TEXTO (IGNORA MAYÚSCULAS/MINÚSCULAS Y ACENTOS)
+    // -------------------------------------------------------------------------
+    function normalizeText(text) {
+      if (!text) return '';
+      return text
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function formatCurrency(amount) {
+      const val = Number(amount) || 0;
+      return `$${val.toFixed(2)}`;
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. LÓGICA DE BÚSQUEDA EN TIEMPO REAL LETRA POR LETRA
+    // -------------------------------------------------------------------------
+    searchInput.addEventListener('input', (e) => {
+      handleSearch(e.target.value);
+    });
+
+    function handleSearch(rawQuery) {
+      const query = normalizeText(rawQuery);
+
+      if (!query) {
+        resultsDropdown.innerHTML = '';
+        resultsDropdown.classList.remove('active');
+        return;
+      }
+
+      // Filtrado por coincidencia parcial insensible a mayúsculas y acentos
+      const matches = clients.filter(client => {
+        const normalizedName = normalizeText(client.nombre);
+        return normalizedName.includes(query);
+      });
+
+      renderDropdownResults(matches);
+    }
+
+    function renderDropdownResults(matches) {
+      resultsDropdown.innerHTML = '';
+
+      // Si no hay resultados, mostrar mensaje requerido
+      if (matches.length === 0) {
+        resultsDropdown.innerHTML = '<div class="no-results">Sin resultados</div>';
+        resultsDropdown.classList.add('active');
+        return;
+      }
+
+      // Renderizar coincidencias
+      matches.forEach(client => {
+        const item = document.createElement('div');
+        item.className = 'result-item';
+
+        const statusClass = client.estado === 'pagado'
+          ? 'status-pagado'
+          : client.estado === 'a favor'
+          ? 'status-afavor'
+          : 'status-pendiente';
+
+        const statusText = client.estado === 'pagado'
+          ? 'Pagado'
+          : client.estado === 'a favor'
+          ? 'A Favor'
+          : 'Pendiente';
+
+        item.innerHTML = `
+          <div class="result-info">
+            <span class="result-name">${escapeHtml(client.nombre)}</span>
+            <span class="result-status-tag ${statusClass}">${statusText}</span>
+          </div>
+          <div class="result-cuota-box">
+            <span class="result-cuota-label">Cuota</span>
+            <div class="result-cuota-value">${formatCurrency(client.cuota)}</div>
+          </div>
+        `;
+
+        item.addEventListener('click', () => {
+          selectClient(client.id);
+          resultsDropdown.classList.remove('active');
+        });
+
+        resultsDropdown.appendChild(item);
+      });
+
+      resultsDropdown.classList.add('active');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. SELECCIÓN DE CLIENTE Y CARGA DEL DETALLE
+    // -------------------------------------------------------------------------
+    function selectClient(clientId) {
+      const found = clients.find(c => c.id === clientId);
+      if (!found) return;
+
+      selectedClient = found;
+      emptyPanel.style.display = 'none';
+      detailPanel.style.display = 'block';
+
+      // Limpiar mensajes y monto previo
+      clearFeedback();
+      paymentAmountInput.value = '';
+
+      updateClientUI();
+      paymentAmountInput.focus();
+    }
+
+    function updateClientUI() {
+      if (!selectedClient) return;
+
+      clientNameEl.textContent = selectedClient.nombre;
+      clientIdLabelEl.textContent = `ID #${selectedClient.id}`;
+      clientCuotaEl.textContent = formatCurrency(selectedClient.cuota);
+
+      // Estado visual y Badge
+      clientStatusBadgeEl.className = 'result-status-tag';
+      if (selectedClient.estado === 'pagado') {
+        clientStatusBadgeEl.classList.add('status-pagado');
+        clientStatusBadgeEl.textContent = 'Pagado';
+      } else if (selectedClient.estado === 'a favor') {
+        clientStatusBadgeEl.classList.add('status-afavor');
+        clientStatusBadgeEl.textContent = 'A Favor';
+      } else {
+        clientStatusBadgeEl.classList.add('status-pendiente');
+        clientStatusBadgeEl.textContent = 'Pendiente';
+      }
+
+      // Formateo del saldo
+      clientSaldoEl.className = 'metric-value saldo';
+      if (selectedClient.saldo === 0) {
+        saldoLabelEl.textContent = 'Saldo';
+        clientSaldoEl.textContent = '$0.00';
+        clientSaldoEl.classList.add('zero');
+      } else if (selectedClient.saldo < 0) {
+        saldoLabelEl.textContent = 'Saldo a Favor';
+        const absoluteSurplus = Math.abs(selectedClient.saldo);
+        clientSaldoEl.textContent = `+${formatCurrency(absoluteSurplus)}`;
+        clientSaldoEl.classList.add('negative');
+      } else {
+        saldoLabelEl.textContent = 'Saldo Pendiente';
+        clientSaldoEl.textContent = formatCurrency(selectedClient.saldo);
+      }
+
+      // Actualizar chips sugeridos
+      chipExact.textContent = `Cuota ($${selectedClient.cuota})`;
+      chipHalf.textContent = `50% ($${(selectedClient.cuota / 2).toFixed(2)})`;
+      chipDouble.textContent = `2x Cuota ($${(selectedClient.cuota * 2).toFixed(2)})`;
+      chipTotal.textContent = selectedClient.saldo > 0
+        ? `Saldo ($${selectedClient.saldo.toFixed(2)})`
+        : `Cuota ($${selectedClient.cuota})`;
+
+      // Renderizar historial local
+      renderHistory();
+    }
+
+    function renderHistory() {
+      historyListEl.innerHTML = '';
+      const list = selectedClient.historial || [];
+      if (list.length === 0) {
+        historyListEl.innerHTML = '<li class="history-item" style="color: var(--text-muted); font-style: italic;">Sin pagos registrados aún para este cliente.</li>';
+        return;
+      }
+
+      list.slice().reverse().forEach(entry => {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        li.innerHTML = `
+          <span>${entry.fecha} - <em>${entry.tipo}</em></span>
+          <span class="history-amount">+${formatCurrency(entry.monto)}</span>
+        `;
+        historyListEl.appendChild(li);
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. ATAJOS RÁPIDOS DE MONTO (CHIPS)
+    // -------------------------------------------------------------------------
+    chipExact.addEventListener('click', () => {
+      if (selectedClient) paymentAmountInput.value = selectedClient.cuota;
+    });
+
+    chipHalf.addEventListener('click', () => {
+      if (selectedClient) paymentAmountInput.value = (selectedClient.cuota / 2).toFixed(2);
+    });
+
+    chipDouble.addEventListener('click', () => {
+      if (selectedClient) paymentAmountInput.value = (selectedClient.cuota * 2).toFixed(2);
+    });
+
+    chipTotal.addEventListener('click', () => {
+      if (selectedClient) {
+        paymentAmountInput.value = selectedClient.saldo > 0
+          ? selectedClient.saldo.toFixed(2)
+          : selectedClient.cuota.toFixed(2);
+      }
+    });
+
+    // -------------------------------------------------------------------------
+    // 8. LÓGICA DE PAGO (REGLA PRINCIPAL)
+    // -------------------------------------------------------------------------
+    paymentForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      clearFeedback();
+
+      if (!selectedClient) {
+        showFeedback('Por favor seleccione un cliente primero.', 'error');
+        return;
+      }
+
+      const rawValue = paymentAmountInput.value.trim();
+      const amount = parseFloat(rawValue);
+
+      // REGLA: Solo rechazar si el monto está vacío, es 0, es negativo o no es un número.
+      if (rawValue === '' || isNaN(amount) || amount <= 0) {
+        showFeedback('Error: Ingrese un monto numérico válido mayor a 0.', 'error');
+        paymentAmountInput.focus();
+        return;
+      }
+
+      // Redondear a 2 decimales para evitar problemas de coma flotante
+      const paymentAmount = Math.round(amount * 100) / 100;
+      const cuota = selectedClient.cuota;
+
+      // Restar el monto del saldo del cliente
+      const nuevoSaldo = Math.round((selectedClient.saldo - paymentAmount) * 100) / 100;
+      selectedClient.saldo = nuevoSaldo;
+
+      let feedbackClass = '';
+      let feedbackText = '';
+      let paymentType = '';
+
+      // CONDICIONES DE COMPARACIÓN CON LA CUOTA
+      if (paymentAmount < cuota) {
+        // PAGO PARCIAL
+        selectedClient.estado = nuevoSaldo <= 0 ? (nuevoSaldo === 0 ? 'pagado' : 'a favor') : 'pendiente';
+        feedbackClass = 'feedback-partial';
+        feedbackText = `⚠️ Pago parcial aceptado. Saldo restante: ${formatCurrency(Math.max(0, nuevoSaldo))}.`;
+        paymentType = 'Pago Parcial';
+      } else if (paymentAmount === cuota) {
+        // PAGO COMPLETO
+        selectedClient.estado = nuevoSaldo <= 0 ? (nuevoSaldo === 0 ? 'pagado' : 'a favor') : 'pendiente';
+        feedbackClass = 'feedback-full';
+        feedbackText = `✅ Pago completo aceptado. Saldo: ${formatCurrency(nuevoSaldo)}.`;
+        paymentType = 'Pago Completo';
+      } else {
+        // PAGO MAYOR (EXCEDENTE A FAVOR)
+        const excedente = Math.round((paymentAmount - cuota) * 100) / 100;
+        selectedClient.estado = 'a favor';
+        feedbackClass = 'feedback-surplus';
+        feedbackText = `🎉 Pago aceptado. Excedente a favor: ${formatCurrency(excedente)}.`;
+        paymentType = 'Pago con Excedente';
+      }
+
+      // Registro en historial
+      if (!selectedClient.historial) selectedClient.historial = [];
+      const now = new Date();
+      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+      selectedClient.historial.push({
+        fecha: timeStr,
+        monto: paymentAmount,
+        tipo: paymentType
+      });
+
+      // Guardar en almacenamiento persistente
+      saveClients(clients);
+
+      // Actualizar vista
+      updateClientUI();
+      showFeedback(feedbackText, feedbackClass);
+
+      // Limpiar input de pago
+      paymentAmountInput.value = '';
+    });
+
+    function showFeedback(message, typeClass) {
+      feedbackMessageEl.className = `feedback-message active ${typeClass}`;
+      feedbackMessageEl.textContent = message;
+    }
+
+    function clearFeedback() {
+      feedbackMessageEl.className = 'feedback-message';
+      feedbackMessageEl.textContent = '';
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. RESTABLECER DATOS DE EJEMPLO
+    // -------------------------------------------------------------------------
+    btnResetData.addEventListener('click', () => {
+      if (confirm('¿Desea restablecer los 5 clientes de ejemplo con sus saldos iniciales?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        clients = loadClients();
+        selectedClient = null;
+        detailPanel.style.display = 'none';
+        emptyPanel.style.display = 'block';
+        searchInput.value = '';
+        closeSearchBar();
+        alert('Datos restablecidos exitosamente.');
+      }
+    });
+
+  </script>
+</body>
+</html>

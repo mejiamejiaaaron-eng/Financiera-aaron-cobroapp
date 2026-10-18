@@ -23,6 +23,7 @@ import { MyAccountView } from './components/collector/MyAccountView';
 import { PopularCreditsView } from './components/credits/PopularCreditsView';
 import { CollectorBottomNav } from './components/common/CollectorBottomNav';
 import { AdminCodeViewerModal } from './components/common/AdminCodeViewerModal';
+import { QuickSearchModal } from './components/common/QuickSearchModal';
 import { LogOut, AlertTriangle, Code2 } from 'lucide-react';
 
 const MainAppContent: React.FC = () => {
@@ -34,11 +35,25 @@ const MainAppContent: React.FC = () => {
     setActiveReceiptModalPayment,
     isAddCreditModalOpen,
     setIsAddCreditModalOpen,
+    isQuickSearchOpen,
+    setIsQuickSearchOpen,
   } = useApp();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isAdminCodeModalOpen, setIsAdminCodeModalOpen] = useState(false);
+
+  // Atajo de teclado para abrir el buscador (Ctrl+K o Cmd+K)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsQuickSearchOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setIsQuickSearchOpen]);
 
   // If unauthenticated, show secure login screen
   if (!isAuthenticated) {
@@ -100,6 +115,12 @@ const MainAppContent: React.FC = () => {
       <AddClientCreditModal
         isOpen={isAddCreditModalOpen}
         onClose={() => setIsAddCreditModalOpen(false)}
+      />
+
+      {/* Modal de Búsqueda Rápida de Clientes y Pagos */}
+      <QuickSearchModal
+        isOpen={isQuickSearchOpen}
+        onClose={() => setIsQuickSearchOpen(false)}
       />
 
       {/* Active Thermal Ticket Receipt Modal */}

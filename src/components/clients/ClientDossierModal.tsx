@@ -238,6 +238,14 @@ export const ClientDossierModal: React.FC<Props> = ({
                     <strong className="text-white">{currentCredit.interestRate}% ({formatCurrency(currentCredit.totalInterest, settings.currencySymbol)})</strong>
                   </div>
                   <div>
+                    <span className="text-slate-400 block">Fecha Entrega:</span>
+                    <strong className="text-white">{formatDateDisplay(currentCredit.startDate)}</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block">Primera Cuota:</span>
+                    <strong className="text-emerald-300">{formatDateDisplay(currentCredit.firstDueDate)}</strong>
+                  </div>
+                  <div>
                     <span className="text-slate-400 block">Vencimiento Final:</span>
                     <strong className="text-blue-300">{formatDateDisplay(currentCredit.finalDueDate)}</strong>
                   </div>

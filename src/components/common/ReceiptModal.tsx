@@ -19,12 +19,17 @@ export const ReceiptModal: React.FC<Props> = ({ payment, onClose }) => {
   };
 
   const handleShareWhatsApp = () => {
+    const cuotasInfo =
+      payment.appliedBreakdown && payment.appliedBreakdown.length > 1
+        ? `Cuotas Cubiertas: ${payment.appliedBreakdown.map(b => `#${b.installmentNumber} (${formatCurrency(b.amount, settings.currencySymbol)})`).join(', ')} (Adelanto de Cuotas)`
+        : `Cuota #${payment.installmentNumber}`;
+
     const text = `*COMPROBANTE OFICIAL DE PAGO*\n` +
       `*${settings.businessName}*\n` +
       `Recibo: ${payment.receiptNumber}\n` +
       `Fecha: ${formatDateDisplay(payment.date)} ${payment.time}\n` +
       `Cliente: ${payment.clientName}\n` +
-      `Cuota #${payment.installmentNumber}\n` +
+      `${cuotasInfo}\n` +
       `Monto Recibido: ${formatCurrency(payment.receivedAmount, settings.currencySymbol)}\n` +
       `Método: ${payment.paymentMethod}\n` +
       `Saldo Restante Cuota: ${formatCurrency(payment.installmentRemainingBalance, settings.currencySymbol)}\n` +
@@ -83,9 +88,32 @@ export const ReceiptModal: React.FC<Props> = ({ payment, onClose }) => {
               <span className="font-bold text-slate-900 text-right">{payment.clientName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">CUOTA PAGADA:</span>
-              <span className="font-semibold">Cuota #{payment.installmentNumber}</span>
+              <span className="text-slate-500">
+                {payment.appliedBreakdown && payment.appliedBreakdown.length > 1
+                  ? 'CUOTAS CUBIERTAS:'
+                  : 'CUOTA PAGADA:'}
+              </span>
+              <span className="font-bold text-right text-slate-900">
+                {payment.appliedBreakdown && payment.appliedBreakdown.length > 1
+                  ? payment.appliedBreakdown.map(b => `#${b.installmentNumber}`).join(', ')
+                  : `Cuota #${payment.installmentNumber}`}
+              </span>
             </div>
+
+            {payment.appliedBreakdown && payment.appliedBreakdown.length > 1 && (
+              <div className="p-2 bg-emerald-50 rounded border border-emerald-200 text-[11px] text-emerald-950 space-y-1">
+                <span className="font-bold block text-[10px] uppercase text-emerald-800">
+                  Adelanto Aplicado ({payment.appliedBreakdown.length} cuotas):
+                </span>
+                {payment.appliedBreakdown.map(b => (
+                  <div key={b.installmentId} className="flex justify-between text-[11px]">
+                    <span>Cuota #{b.installmentNumber}:</span>
+                    <strong className="font-mono">{formatCurrency(b.amount, settings.currencySymbol)}</strong>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="flex justify-between">
               <span className="text-slate-500">FORMA DE PAGO:</span>
               <span className="font-semibold">{payment.paymentMethod}</span>

@@ -147,7 +147,7 @@ export class LoanCalculator {
       });
 
       if (i < totalInstallments) {
-        currentDate = getNextDueDate(currentDate, modality, true);
+        currentDate = getNextDueDate(currentDate, modality, false);
       }
     }
 
