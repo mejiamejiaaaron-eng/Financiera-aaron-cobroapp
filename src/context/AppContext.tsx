@@ -15,6 +15,7 @@ import {
   loadDatabase,
   saveDatabase,
   recordPaymentTransaction,
+  updatePaymentReceipt,
   requestPaymentReversion,
   approvePaymentReversion,
   rejectPaymentReversion,
@@ -89,6 +90,17 @@ interface AppContextType {
     receivedAmount: number;
     paymentMethod: PaymentMethod;
     notes: string;
+    customDate?: string;
+    customTime?: string;
+  }) => Promise<Payment>;
+  handleUpdatePaymentReceipt: (params: {
+    paymentId: string;
+    receiptNumber?: string;
+    date?: string;
+    time?: string;
+    paymentMethod?: PaymentMethod;
+    notes?: string;
+    collectorName?: string;
   }) => Promise<Payment>;
   handleRequestReversion: (paymentId: string, reason: string) => Promise<void>;
   handleApproveReversion: (requestId: string, adminNotes: string) => Promise<void>;
@@ -327,11 +339,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       receivedAmount: number;
       paymentMethod: PaymentMethod;
       notes: string;
+      customDate?: string;
+      customTime?: string;
     }) => {
       if (!currentUser) throw new Error('Usuario no autenticado.');
       setSyncStatus('saving');
       try {
         const result = recordPaymentTransaction(database, {
+          ...params,
+          currentUser,
+        });
+        setDatabase(result.db);
+        setActiveReceiptModalPayment(result.payment);
+        setSyncStatus('synced');
+        return result.payment;
+      } catch (err) {
+        setSyncStatus('synced');
+        throw err;
+      }
+    },
+    [currentUser, database]
+  );
+
+  const handleUpdatePaymentReceipt = useCallback(
+    async (params: {
+      paymentId: string;
+      receiptNumber?: string;
+      date?: string;
+      time?: string;
+      paymentMethod?: PaymentMethod;
+      notes?: string;
+      collectorName?: string;
+    }) => {
+      if (!currentUser) throw new Error('Usuario no autenticado.');
+      setSyncStatus('saving');
+      try {
+        const result = updatePaymentReceipt(database, {
           ...params,
           currentUser,
         });
@@ -670,6 +713,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsQuickSearchOpen,
         syncStatus,
         handleRecordPayment,
+        handleUpdatePaymentReceipt,
         handleRequestReversion,
         handleApproveReversion,
         handleRejectReversion,

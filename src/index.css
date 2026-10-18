@@ -1,1 +1,50 @@
 @import "tailwindcss";
+
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  /* Isolation for Printable Ticket */
+  body:has(#printable-receipt) * {
+    visibility: hidden;
+  }
+  body:has(#printable-receipt) #printable-receipt,
+  body:has(#printable-receipt) #printable-receipt * {
+    visibility: visible;
+  }
+  body:has(#printable-receipt) #printable-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Isolation for Client Dossier (Expediente del Cliente) */
+  body:has(#printable-client-dossier) * {
+    visibility: hidden;
+  }
+  body:has(#printable-client-dossier) #printable-client-dossier,
+  body:has(#printable-client-dossier) #printable-client-dossier * {
+    visibility: visible;
+  }
+  body:has(#printable-client-dossier) #printable-client-dossier {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 16px;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}

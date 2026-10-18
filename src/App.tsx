@@ -24,6 +24,8 @@ import { PopularCreditsView } from './components/credits/PopularCreditsView';
 import { CollectorBottomNav } from './components/common/CollectorBottomNav';
 import { AdminCodeViewerModal } from './components/common/AdminCodeViewerModal';
 import { QuickSearchModal } from './components/common/QuickSearchModal';
+import { FloatingPaymentButton } from './components/common/FloatingPaymentButton';
+import { ClientDossierModal } from './components/clients/ClientDossierModal';
 import { LogOut, AlertTriangle, Code2 } from 'lucide-react';
 
 const MainAppContent: React.FC = () => {
@@ -37,6 +39,8 @@ const MainAppContent: React.FC = () => {
     setIsAddCreditModalOpen,
     isQuickSearchOpen,
     setIsQuickSearchOpen,
+    selectedClientIdForDossier,
+    setSelectedClientIdForDossier,
   } = useApp();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -130,6 +134,23 @@ const MainAppContent: React.FC = () => {
           onClose={() => setActiveReceiptModalPayment(null)}
         />
       )}
+
+      {/* Modal Global de Expediente de Cliente Imprimible */}
+      {selectedClientIdForDossier && (
+        <ClientDossierModal
+          clientId={selectedClientIdForDossier}
+          onClose={() => setSelectedClientIdForDossier(null)}
+          onOpenArchiveModal={() => {
+            setSelectedClientIdForDossier(null);
+            setCurrentView('clients');
+          }}
+        />
+      )}
+
+      {/* Botón Flotante Movible en Toda la Pantalla con la Opción "Pagar" */}
+      <FloatingPaymentButton
+        onOpenPaymentSearch={() => setIsQuickSearchOpen(true)}
+      />
 
       {/* Logout Confirmation Modal (Prompt Section 12) */}
       {isLogoutModalOpen && (

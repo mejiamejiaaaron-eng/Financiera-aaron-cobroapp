@@ -472,13 +472,29 @@ export const QuickSearchModal: React.FC<Props> = ({ isOpen, onClose }) => {
                           <span>{isSubmittingPay ? 'Procesando Pago...' : 'Pagar Ahora'}</span>
                         </button>
 
+                        {firstUnpaidInstallment && (
+                          <button
+                            type="button"
+                            onClick={() => setFullPaymentTarget({
+                              installment: firstUnpaidInstallment,
+                              client: selectedClient,
+                              credit: selectedCredit,
+                            })}
+                            className="py-3 px-3 bg-blue-900/60 hover:bg-blue-800/80 border border-blue-700/80 text-blue-200 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
+                            title="Ver opciones de cuota del día, cuota de atraso o elegir fecha"
+                          >
+                            <Receipt className="w-4 h-4 text-blue-400" />
+                            <span>Opciones Cuota / Atraso</span>
+                          </button>
+                        )}
+
                         <button
                           type="button"
                           onClick={() => handleOpenClientDossier(selectedClient.id)}
                           className="py-3 px-4 bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <FileText className="w-4 h-4" />
-                          <span>Expediente Completo</span>
+                          <span>Expediente</span>
                         </button>
                       </div>
                     </form>

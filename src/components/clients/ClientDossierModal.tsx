@@ -12,12 +12,14 @@ import {
   CheckCircle,
   AlertTriangle,
   Clock,
-  ExternalLink,
+  Printer,
+  ShieldCheck,
+  Building,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { LoanCalculator, formatCurrency } from '../../utils/financialCalculations';
-import { formatDateDisplay } from '../../utils/dateUtils';
+import { formatDateDisplay, getElSalvadorDate } from '../../utils/dateUtils';
 import { Credit } from '../../types';
 
 interface Props {
@@ -44,21 +46,27 @@ export const ClientDossierModal: React.FC<Props> = ({
 
   const currentCredit = clientCredits.find(c => c.id === selectedCreditId) || clientCredits[0];
 
-  const creditInstallments = database.installments.filter(
-    i => i.creditId === currentCredit?.id
-  );
+  const creditInstallments = database.installments
+    .filter(i => i.creditId === currentCredit?.id)
+    .sort((a, b) => a.installmentNumber - b.installmentNumber);
 
-  const creditPayments = database.payments.filter(
-    p => p.creditId === currentCredit?.id
-  );
+  const creditPayments = database.payments
+    .filter(p => p.creditId === currentCredit?.id)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   if (!client) return null;
+
+  const today = getElSalvadorDate();
+
+  const handlePrintDossier = () => {
+    window.print();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs">
       <div className="bg-slate-900 border border-slate-700 w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-100">
         {/* Header */}
-        <div className="bg-slate-950 px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-slate-950 px-5 py-4 border-b border-slate-800 flex items-center justify-between no-print">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow">
               <User className="w-5 h-5" />
@@ -79,16 +87,27 @@ export const ClientDossierModal: React.FC<Props> = ({
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handlePrintDossier}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer"
+              title="Imprimir expediente oficial del cliente"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Imprimir Expediente</span>
+            </button>
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-6">
+        <div className="flex-1 overflow-y-auto p-5 space-y-6 no-print">
           {/* Client Personal Info Card */}
           <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 text-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
@@ -122,7 +141,7 @@ export const ClientDossierModal: React.FC<Props> = ({
             )}
           </div>
 
-          {/* Credits Selector Tabs (Supports multiple loans per client) */}
+          {/* Credits Selector Tabs */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-bold uppercase text-slate-400 tracking-wider">
@@ -151,7 +170,7 @@ export const ClientDossierModal: React.FC<Props> = ({
                     <button
                       key={c.id}
                       onClick={() => setSelectedCreditId(c.id)}
-                      className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border transition ${
+                      className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border transition cursor-pointer ${
                         isSelected
                           ? 'bg-blue-600 border-blue-500 text-white shadow-md'
                           : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
@@ -207,7 +226,7 @@ export const ClientDossierModal: React.FC<Props> = ({
                 </div>
               </div>
 
-              {/* Stored Credit Plan Summary (SSOT - No recalculations) */}
+              {/* Stored Credit Plan Summary */}
               <div className="bg-slate-900 border border-slate-700/80 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold">
@@ -252,7 +271,7 @@ export const ClientDossierModal: React.FC<Props> = ({
                 </div>
               </div>
 
-              {/* Installments Table for this credit (Direct read from DB, zero formulas) */}
+              {/* Installments Table */}
               <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-700">
                   <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
@@ -328,7 +347,7 @@ export const ClientDossierModal: React.FC<Props> = ({
                 </div>
               </div>
 
-              {/* Payments & Receipts for this credit */}
+              {/* Payments & Receipts */}
               <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-700">
                   <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
@@ -385,7 +404,7 @@ export const ClientDossierModal: React.FC<Props> = ({
                             <td className="py-2 px-2 text-right">
                               <button
                                 onClick={() => setActiveReceiptModalPayment(p)}
-                                className="inline-flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 bg-blue-900/40 px-2 py-0.5 rounded border border-blue-800/60 transition"
+                                className="inline-flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 bg-blue-900/40 px-2 py-0.5 rounded border border-blue-800/60 transition cursor-pointer"
                               >
                                 <FileText className="w-3 h-3" />
                                 <span>Ticket</span>
@@ -402,11 +421,221 @@ export const ClientDossierModal: React.FC<Props> = ({
           )}
         </div>
 
+        {/* =========================================================================
+            PRINTABLE DOSSIER (Rendered and isolated during window.print())
+           ========================================================================= */}
+        <div id="printable-client-dossier" className="hidden print:block font-sans text-black text-xs space-y-4">
+          {/* Header Oficial de Financiera */}
+          <div className="border-b-2 border-slate-900 pb-3 flex justify-between items-start">
+            <div>
+              <h1 className="text-xl font-black tracking-wider uppercase text-slate-900">
+                {settings.businessName}
+              </h1>
+              <p className="text-xs text-slate-700 font-semibold">{settings.brandSubtitle}</p>
+              <p className="text-[11px] text-slate-600">{settings.contactAddress}</p>
+              <p className="text-[11px] text-slate-600">Tel: {settings.contactPhone}</p>
+            </div>
+            <div className="text-right">
+              <span className="inline-block border border-slate-900 bg-slate-100 px-3 py-1 text-xs font-black uppercase tracking-wider">
+                EXPEDIENTE DE CLIENTE
+              </span>
+              <p className="text-[10px] text-slate-500 mt-1">
+                Fecha Emisión: {formatDateDisplay(today)}
+              </p>
+            </div>
+          </div>
+
+          {/* Sección 1: Datos Personales del Cliente */}
+          <div className="border border-slate-300 rounded p-3 space-y-1.5 bg-slate-50">
+            <h3 className="font-bold uppercase text-[11px] text-slate-800 border-b border-slate-200 pb-1">
+              1. Datos Generales del Cliente
+            </h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span className="text-slate-500 block text-[10px]">NOMBRE COMPLETO:</span>
+                <strong className="text-slate-900 text-sm">{client.fullName}</strong>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">DUI (DOCUMENTO DE IDENTIDAD):</span>
+                <strong className="font-mono text-slate-900">{client.dui || 'No registrado'}</strong>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">TELÉFONO DE CONTACTO:</span>
+                <strong className="text-slate-900">{client.phone}</strong>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">COBRADOR / ASESOR ASIGNADO:</span>
+                <strong className="text-slate-900">{client.assignedCollectorName}</strong>
+              </div>
+              <div className="col-span-2">
+                <span className="text-slate-500 block text-[10px]">DIRECCIÓN RESIDENCIAL / COMERCIAL:</span>
+                <span className="text-slate-800">{client.address || 'Sin dirección registrada'}</span>
+              </div>
+              {client.personalReferences && (
+                <div className="col-span-2">
+                  <span className="text-slate-500 block text-[10px]">REFERENCIAS PERSONALES:</span>
+                  <span className="text-slate-700 italic">{client.personalReferences}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sección 2: Resumen del Crédito */}
+          {currentCredit && (
+            <div className="border border-slate-300 rounded p-3 space-y-2">
+              <div className="flex justify-between items-center border-b border-slate-200 pb-1">
+                <h3 className="font-bold uppercase text-[11px] text-slate-800">
+                  2. Condiciones Financieras ({currentCredit.creditNumber})
+                </h3>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 border border-slate-800 rounded">
+                  {currentCredit.status === 'liquidated' ? 'CRÉDITO LIQUIDADO' : currentCredit.status === 'overdue' ? 'CRÉDITO EN MORA' : 'CRÉDITO ACTIVO'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-4 gap-2 text-center text-xs py-1 bg-slate-100 rounded">
+                <div>
+                  <span className="text-[10px] text-slate-500 block">CAPITAL</span>
+                  <strong className="text-slate-900 text-sm">{formatCurrency(currentCredit.principal, settings.currencySymbol)}</strong>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 block">TOTAL A PAGAR</span>
+                  <strong className="text-slate-900 text-sm">{formatCurrency(currentCredit.totalAmountToPay, settings.currencySymbol)}</strong>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 block">TOTAL PAGADO</span>
+                  <strong className="text-emerald-800 text-sm">{formatCurrency(currentCredit.totalPaid, settings.currencySymbol)}</strong>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 block">SALDO PENDIENTE</span>
+                  <strong className="text-rose-800 text-sm">{formatCurrency(currentCredit.balancePending, settings.currencySymbol)}</strong>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 text-[11px] pt-1">
+                <div>
+                  <span className="text-slate-500 block text-[10px]">CUOTA ESTÁNDAR:</span>
+                  <strong className="text-slate-900">{formatCurrency(LoanCalculator.getInstallmentAmount(currentCredit), settings.currencySymbol)}</strong>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px]">MODALIDAD Y PLAZO:</span>
+                  <span className="capitalize">{currentCredit.modality} ({currentCredit.totalInstallments} cuotas)</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px]">TASA DE INTERÉS:</span>
+                  <span>{currentCredit.interestRate}% ({formatCurrency(currentCredit.totalInterest, settings.currencySymbol)})</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px]">FECHA DE DESEMBOLSO:</span>
+                  <span>{formatDateDisplay(currentCredit.startDate)}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px]">PRIMERA CUOTA:</span>
+                  <span>{formatDateDisplay(currentCredit.firstDueDate)}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px]">FECHA DE VENCIMIENTO FINAL:</span>
+                  <span>{formatDateDisplay(currentCredit.finalDueDate)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sección 3: Cronograma de Cuotas (Tabla Impresa) */}
+          {creditInstallments.length > 0 && (
+            <div className="border border-slate-300 rounded p-3 space-y-1.5">
+              <h3 className="font-bold uppercase text-[11px] text-slate-800 border-b border-slate-200 pb-1">
+                3. Cronograma de Cuotas y Pagos
+              </h3>
+              <table className="w-full text-[10px] text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-400 bg-slate-100">
+                    <th className="py-1 px-1 font-bold"># Cuota</th>
+                    <th className="py-1 px-1 font-bold">Vencimiento</th>
+                    <th className="py-1 px-1 font-bold">Monto Cuota</th>
+                    <th className="py-1 px-1 font-bold">Total Abonado</th>
+                    <th className="py-1 px-1 font-bold">Saldo Pendiente</th>
+                    <th className="py-1 px-1 font-bold">Estado</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {creditInstallments.map(inst => (
+                    <tr key={inst.id}>
+                      <td className="py-1 px-1 font-mono">Cuota #{inst.installmentNumber}</td>
+                      <td className="py-1 px-1">{formatDateDisplay(inst.dueDate)}</td>
+                      <td className="py-1 px-1 font-semibold">{formatCurrency(inst.scheduledAmount, settings.currencySymbol)}</td>
+                      <td className="py-1 px-1 text-emerald-800">{formatCurrency(inst.paidAmount, settings.currencySymbol)}</td>
+                      <td className="py-1 px-1 font-bold text-rose-800">{formatCurrency(inst.balance, settings.currencySymbol)}</td>
+                      <td className="py-1 px-1 uppercase font-semibold text-[9px]">
+                        {inst.status === 'paid' ? 'Pagada' : inst.status === 'overdue' ? `Mora (${inst.daysOverdue}d)` : inst.status === 'partial' ? 'Abono Parcial' : 'Pendiente'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Sección 4: Historial de Comprobantes Emitidos */}
+          {creditPayments.length > 0 && (
+            <div className="border border-slate-300 rounded p-3 space-y-1.5">
+              <h3 className="font-bold uppercase text-[11px] text-slate-800 border-b border-slate-200 pb-1">
+                4. Historial Oficial de Comprobantes de Pago ({creditPayments.length})
+              </h3>
+              <table className="w-full text-[10px] text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-400 bg-slate-100">
+                    <th className="py-1 px-1 font-bold">N° Recibo</th>
+                    <th className="py-1 px-1 font-bold">Fecha / Hora</th>
+                    <th className="py-1 px-1 font-bold">Cuota</th>
+                    <th className="py-1 px-1 font-bold">Importe Recibido</th>
+                    <th className="py-1 px-1 font-bold">Forma de Pago</th>
+                    <th className="py-1 px-1 font-bold">Cobrador</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {creditPayments.map(p => (
+                    <tr key={p.id}>
+                      <td className="py-1 px-1 font-mono">{p.receiptNumber} {p.isReversed ? '(REVERTIDO)' : ''}</td>
+                      <td className="py-1 px-1">{formatDateDisplay(p.date)} {p.time}</td>
+                      <td className="py-1 px-1">Cuota #{p.installmentNumber}</td>
+                      <td className="py-1 px-1 font-bold">{formatCurrency(p.receivedAmount, settings.currencySymbol)}</td>
+                      <td className="py-1 px-1">{p.paymentMethod}</td>
+                      <td className="py-1 px-1">{p.collectorName}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Sección 5: Firmas de Conformidad */}
+          <div className="pt-6 grid grid-cols-2 gap-8 text-center text-xs">
+            <div className="border-t border-slate-800 pt-2">
+              <p className="font-bold uppercase text-slate-900">{client.fullName}</p>
+              <p className="text-[10px] text-slate-600 font-mono">DUI: {client.dui || '__________________'}</p>
+              <p className="text-[10px] text-slate-500 italic mt-0.5">Firma de Conformidad del Titular</p>
+            </div>
+            <div className="border-t border-slate-800 pt-2">
+              <p className="font-bold uppercase text-slate-900">{settings.businessName}</p>
+              <p className="text-[10px] text-slate-600">Cobrador: {client.assignedCollectorName}</p>
+              <p className="text-[10px] text-slate-500 italic mt-0.5">Firma y Sello de Autorización</p>
+            </div>
+          </div>
+        </div>
+
         {/* Footer */}
-        <div className="p-4 bg-slate-950 border-t border-slate-800 flex justify-end">
+        <div className="p-4 bg-slate-950 border-t border-slate-800 flex justify-between items-center no-print">
+          <button
+            type="button"
+            onClick={handlePrintDossier}
+            className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Imprimir Expediente Completo</span>
+          </button>
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl transition"
+            className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl transition cursor-pointer"
           >
             Cerrar Expediente
           </button>

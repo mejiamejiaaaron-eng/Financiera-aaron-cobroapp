@@ -206,9 +206,11 @@ export function recordPaymentTransaction(
     paymentMethod: PaymentMethod;
     notes: string;
     currentUser: User;
+    customDate?: string;
+    customTime?: string;
   }
 ): { db: AppDatabase; payment: Payment } {
-  const { creditId, installmentId, receivedAmount, paymentMethod, notes, currentUser } = params;
+  const { creditId, installmentId, receivedAmount, paymentMethod, notes, currentUser, customDate, customTime } = params;
 
   if (receivedAmount <= 0) {
     throw new Error('El importe recibido debe ser mayor a 0');
@@ -234,6 +236,9 @@ export function recordPaymentTransaction(
 
   const today = getElSalvadorDate();
   const time = getElSalvadorTimeString();
+  const isAdminUser = currentUser.role === 'admin';
+  const finalPaymentDate = (isAdminUser && customDate && customDate.trim()) ? customDate.trim() : today;
+  const finalPaymentTime = (isAdminUser && customTime && customTime.trim()) ? customTime.trim() : time;
 
   // Find all installments of this credit ordered by installment number
   const newInstallments = db.installments.map(i => ({ ...i }));
@@ -274,7 +279,7 @@ export function recordPaymentTransaction(
       instToPay.paidAmount = newPaid;
       instToPay.balance = newBal;
       instToPay.status = newBal <= 0.001 ? 'paid' : 'partial';
-      instToPay.lastPaymentDate = today;
+      instToPay.lastPaymentDate = finalPaymentDate;
       if (instToPay.status === 'paid') {
         instToPay.daysOverdue = 0;
       }
@@ -323,8 +328,8 @@ export function recordPaymentTransaction(
     clientName: credit.clientName,
     installmentId: selectedInst.id,
     installmentNumber: selectedInst.installmentNumber,
-    date: today,
-    time,
+    date: finalPaymentDate,
+    time: finalPaymentTime,
     scheduledAmount: selectedInst.scheduledAmount,
     receivedAmount,
     installmentRemainingBalance: selectedInst.balance,
@@ -344,6 +349,10 @@ export function recordPaymentTransaction(
     ? ` Pago superior a la cuota cubriendo ${coveredCount} cuotas (${appliedBreakdown.map(b => `#${b.installmentNumber}: $${b.amount.toFixed(2)}`).join(', ')}).`
     : '';
 
+  const customTimeDesc = (isAdminUser && (customDate || customTime))
+    ? ` [Fecha y Hora personalizadas por Admin: ${finalPaymentDate} a las ${finalPaymentTime}]`
+    : '';
+
   const audit: AuditLog = {
     id: `audit-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
     timestamp: new Date().toISOString(),
@@ -353,7 +362,7 @@ export function recordPaymentTransaction(
     action: selectedInst.balance <= 0.001 ? 'REGISTRO_PAGO_COMPLETO' : 'REGISTRO_ABONO_PARCIAL',
     targetType: 'payment',
     targetId: payment.id,
-    details: `${payment.collectorName} registró $${payment.receivedAmount.toFixed(2)} (${payment.paymentMethod}) para cuota #${selectedInst.installmentNumber} de ${credit.clientName}.${breakdownDesc} Recibo: ${receiptNumber}. Saldo pendiente crédito: $${updatedCredit.balancePending.toFixed(2)}.`,
+    details: `${payment.collectorName} registró $${payment.receivedAmount.toFixed(2)} (${payment.paymentMethod}) para cuota #${selectedInst.installmentNumber} de ${credit.clientName}.${breakdownDesc}${customTimeDesc} Recibo: ${receiptNumber}. Saldo pendiente crédito: $${updatedCredit.balancePending.toFixed(2)}.`,
   };
 
   const newCredits = [...db.credits];
@@ -369,6 +378,74 @@ export function recordPaymentTransaction(
 
   saveDatabase(updatedDb);
   return { db: updatedDb, payment };
+}
+
+/**
+ * Modificar datos de un recibo emitido (Número, Fecha, Hora, Forma de Pago, Cobrador, Observaciones)
+ */
+export function updatePaymentReceipt(
+  db: AppDatabase,
+  params: {
+    paymentId: string;
+    receiptNumber?: string;
+    date?: string;
+    time?: string;
+    paymentMethod?: PaymentMethod;
+    notes?: string;
+    collectorName?: string;
+    currentUser: User;
+  }
+): { db: AppDatabase; payment: Payment } {
+  const { paymentId, receiptNumber, date, time, paymentMethod, notes, collectorName, currentUser } = params;
+
+  const paymentIndex = db.payments.findIndex(p => p.id === paymentId);
+  if (paymentIndex === -1) {
+    throw new Error('Recibo de pago no encontrado.');
+  }
+
+  const existingPayment = db.payments[paymentIndex];
+
+  const updatedPayment: Payment = {
+    ...existingPayment,
+    receiptNumber: (receiptNumber && receiptNumber.trim()) ? receiptNumber.trim() : existingPayment.receiptNumber,
+    date: (date && date.trim()) ? date.trim() : existingPayment.date,
+    time: (time && time.trim()) ? time.trim() : existingPayment.time,
+    paymentMethod: paymentMethod || existingPayment.paymentMethod,
+    notes: notes !== undefined ? notes : existingPayment.notes,
+    collectorName: (collectorName && collectorName.trim()) ? collectorName.trim() : existingPayment.collectorName,
+  };
+
+  const changes: string[] = [];
+  if (receiptNumber && receiptNumber !== existingPayment.receiptNumber) changes.push(`N° Recibo: ${existingPayment.receiptNumber} → ${updatedPayment.receiptNumber}`);
+  if (date && date !== existingPayment.date) changes.push(`Fecha: ${existingPayment.date} → ${updatedPayment.date}`);
+  if (time && time !== existingPayment.time) changes.push(`Hora: ${existingPayment.time} → ${updatedPayment.time}`);
+  if (paymentMethod && paymentMethod !== existingPayment.paymentMethod) changes.push(`Método: ${existingPayment.paymentMethod} → ${updatedPayment.paymentMethod}`);
+  if (notes !== undefined && notes !== existingPayment.notes) changes.push(`Notas: "${existingPayment.notes || ''}" → "${updatedPayment.notes}"`);
+  if (collectorName && collectorName !== existingPayment.collectorName) changes.push(`Cobrador: ${existingPayment.collectorName} → ${updatedPayment.collectorName}`);
+
+  const audit: AuditLog = {
+    id: `audit-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+    timestamp: new Date().toISOString(),
+    userId: currentUser.id,
+    userName: currentUser.name,
+    userRole: currentUser.role,
+    action: 'MODIFICACION_RECIBO',
+    targetType: 'payment',
+    targetId: updatedPayment.id,
+    details: `${currentUser.name} modificó el comprobante ${updatedPayment.receiptNumber} (${updatedPayment.clientName}): ${changes.join(', ') || 'Actualización de datos generales del recibo'}.`,
+  };
+
+  const updatedPayments = [...db.payments];
+  updatedPayments[paymentIndex] = updatedPayment;
+
+  const updatedDb: AppDatabase = {
+    ...db,
+    payments: updatedPayments,
+    auditLogs: [audit, ...db.auditLogs],
+  };
+
+  saveDatabase(updatedDb);
+  return { db: updatedDb, payment: updatedPayment };
 }
 
 /**

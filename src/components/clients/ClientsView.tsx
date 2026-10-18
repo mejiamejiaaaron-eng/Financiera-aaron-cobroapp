@@ -20,7 +20,6 @@ import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { formatCurrency } from '../../utils/financialCalculations';
 import { formatDateDisplay, getElSalvadorDate } from '../../utils/dateUtils';
-import { ClientDossierModal } from './ClientDossierModal';
 import { Client } from '../../types';
 
 export const ClientsView: React.FC = () => {
@@ -398,17 +397,7 @@ export const ClientsView: React.FC = () => {
         )}
       </div>
 
-      {/* Client Dossier Modal */}
-      {selectedClientIdForDossier && (
-        <ClientDossierModal
-          clientId={selectedClientIdForDossier}
-          onClose={() => setSelectedClientIdForDossier(null)}
-          onOpenArchiveModal={id => {
-            setSelectedClientIdForDossier(null);
-            setArchiveModalClientId(id);
-          }}
-        />
-      )}
+
 
       {/* Archive / Logical Soft-Delete Modal (Prompt Section 6) */}
       {archiveModalClientId && clientToArchive && (
